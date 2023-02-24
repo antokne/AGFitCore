@@ -27,7 +27,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AGFitCore",
-            dependencies: []),
+			dependencies: [.product(name: "AGCore", package: "AGCore"),
+						   .product(name: "FitDataProtocol", package: "FitDataProtocol")]),
         .testTarget(
             name: "AGFitCoreTests",
             dependencies: ["AGFitCore"]),
