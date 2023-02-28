@@ -11,18 +11,6 @@ import Foundation
 import AGCore
 import FitDataProtocol
 
-public enum AGFitSmoothableType: Int {
-	case speed
-	case cadence
-	case heartrate
-	case power
-	case gpsAccuracy
-	case altitude
-}
-
-protocol AGSmoothableSamples {
-	static func smoothedValue(samples: [AGFitSampleViewModel], index: Int, count: Int, type: AGFitSmoothableType) -> Double?
-}
 
 @objc public class AGFitSampleViewModel: NSObject {
 	
@@ -92,19 +80,35 @@ protocol AGSmoothableSamples {
 		
 		self.time = timeInterval - AGFitSampleViewModel.startTimeInterval
 		
-		self.distance = NSNumber(value: record.distance?.value ?? 0)
-		self.speed = NSNumber(value: record.speed?.value ?? 0)
-		self.cadence = NSNumber(value: record.cadence?.value ?? 0)
-		self.heartrate = NSNumber(value: record.heartRate?.value ?? 0)
-		self.power = NSNumber(value: record.power?.value ?? 0)
-		
+		if let value = record.distance?.value {
+			self.distance = NSNumber(value: value)
+		}	
+		if let value = record.speed?.value {
+			self.speed = NSNumber(value: value)
+		}
+		if let value = record.cadence?.value {
+			self.cadence = NSNumber(value: value)
+		}
+		if let value = record.heartRate?.value {
+			self.heartrate = NSNumber(value: value)
+		}
+		if let value = record.power?.value {
+			self.power = NSNumber(value: value)
+		}
+
 		if let lat = record.position?.latitude?.converted(to: .degrees).value,
 		   let lng = record.position?.longitude?.converted(to: .degrees).value {
 			self.lat = NSNumber(value: lat)
 			self.lng = NSNumber(value: lng)
 		}
-		self.gpsAccuracy = NSNumber(value: record.gpsAccuracy?.value ?? 0)
-		self.altitude = NSNumber(value: record.altitude?.value ?? 0)
+
+		if let value = record.gpsAccuracy?.value {
+			self.gpsAccuracy = NSNumber(value: value)
+		}
+		if let value = record.altitude?.value {
+			self.altitude = NSNumber(value: value)
+		}
+		
 		super.init()
 		
 		// os_log("index:%d time:%d", index, self.time)
@@ -112,71 +116,3 @@ protocol AGSmoothableSamples {
 	
 }
 
-extension AGFitSampleViewModel : AGSmoothableSamples {
-	
-	public static func smoothedValue(samples: [AGFitSampleViewModel], index: Int, count: Int, type: AGFitSmoothableType) -> Double? {
-		
-		var value = 0.0;
-		
-		let halfCount = count / 2
-		
-		var currentIndex = index - halfCount
-		if currentIndex < 0 {
-			currentIndex = 0
-		}
-		
-		var total = 0.0
-		var actualCount = 0.0
-		while currentIndex <= index + halfCount {
-			
-			if currentIndex >= samples.count {
-				break
-			}
-			
-			switch type {
-			case .speed:
-				if let speed = samples[currentIndex].speed {
-					total += speed.doubleValue
-					actualCount += 1
-				}
-			case .cadence:
-				if let cadence = samples[currentIndex].cadence {
-					total += cadence.doubleValue
-					actualCount += 1
-				}
-			case .heartrate:
-				if let heartrate = samples[currentIndex].heartrate {
-					total += heartrate.doubleValue
-					actualCount += 1
-				}
-			case .power:
-				if let power = samples[currentIndex].power {
-					total += power.doubleValue
-					actualCount += 1
-				}
-			case .gpsAccuracy:
-				if let gpsAcc = samples[currentIndex].gpsAccuracy {
-					total += gpsAcc.doubleValue
-					actualCount += 1
-				}
-			case .altitude:
-				if let altitude = samples[currentIndex].altitude {
-					total += altitude.doubleValue
-					actualCount += 1
-				}
-			}
-			
-			currentIndex += 1
-		}
-		
-		if actualCount == 0 {
-			return nil
-		}
-		
-		value = total / actualCount
-		
-		// os_log("index:%d type:%d value:%f", index, type.rawValue, value)
-		
-		return value
-	}
-}

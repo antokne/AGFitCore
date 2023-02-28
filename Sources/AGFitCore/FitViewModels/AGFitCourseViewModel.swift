@@ -52,8 +52,8 @@ public class WFFitCoursePoint: NSObject {
 		self.coursePoint = coursePoint
 	}
 
-//	NSImage(systemSymbolName: "arrow.triangle.turn.up.right.diamond", accessibilityDescription: "right arrow")
-	public var image: NSImage? {
+//	AGImage(systemSymbolName: "arrow.triangle.turn.up.right.diamond", accessibilityDescription: "right arrow")
+	public var image: AGImage? {
 		if #available(macOS 11.0, *) {
 			return coursePoint.pointType?.image
 		} else {
@@ -80,63 +80,63 @@ extension WFFitCoursePoint: MKAnnotation {
 }
 
 extension CoursePoint {
-	@available(macOS 11.0, *)
-	public var image: NSImage? {
+	@available(macOS 11.0, iOS 13.0, *)
+	public var image: AGImage? {
 		switch self {
 		case .generic:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "just a circle")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "just a circle")
 		case .summit:
-			return NSImage(systemSymbolName: "photo.circle", accessibilityDescription: "right arrow")
+			return AGImage(systemSymbolName: "photo.circle", accessibilityDescription: "right arrow")
 		case .valley:
-			return NSImage(systemSymbolName: "arrow.triangle.turn.up.right.diamond", accessibilityDescription: "right arrow")
+			return AGImage(systemSymbolName: "arrow.triangle.turn.up.right.diamond", accessibilityDescription: "right arrow")
 		case .water:
-			return NSImage(systemSymbolName: "drop", accessibilityDescription: "water")
+			return AGImage(systemSymbolName: "drop", accessibilityDescription: "water")
 		case .food:
-			return NSImage(systemSymbolName: "fork.knife.circle", accessibilityDescription: "food")
+			return AGImage(systemSymbolName: "fork.knife.circle", accessibilityDescription: "food")
 		case .danger:
-			return NSImage(systemSymbolName: "exclamationmark.octagon", accessibilityDescription: "danger")
+			return AGImage(systemSymbolName: "exclamationmark.octagon", accessibilityDescription: "danger")
 		case .left:
-			return NSImage(systemSymbolName: "arrow.left", accessibilityDescription: "left arrow")
+			return AGImage(systemSymbolName: "arrow.left", accessibilityDescription: "left arrow")
 		case .right:
-			return NSImage(systemSymbolName: "arrow.right", accessibilityDescription: "right arrow")
+			return AGImage(systemSymbolName: "arrow.right", accessibilityDescription: "right arrow")
 		case .straight:
-			return NSImage(systemSymbolName: "arrow.up", accessibilityDescription: "right straight")
+			return AGImage(systemSymbolName: "arrow.up", accessibilityDescription: "right straight")
 		case .firstAid:
-			return NSImage(systemSymbolName: "stethoscope.circle", accessibilityDescription: "stethoscope circle")
+			return AGImage(systemSymbolName: "stethoscope.circle", accessibilityDescription: "stethoscope circle")
 		case .fourthCategory:
-			return NSImage(systemSymbolName: "4.circle", accessibilityDescription: "4th cat climb")
+			return AGImage(systemSymbolName: "4.circle", accessibilityDescription: "4th cat climb")
 		case .thirdCategory:
-			return NSImage(systemSymbolName: "3.circle", accessibilityDescription: "3rd cat climb")
+			return AGImage(systemSymbolName: "3.circle", accessibilityDescription: "3rd cat climb")
 		case .secondCategory:
-			return NSImage(systemSymbolName: "2.circle", accessibilityDescription: "2nd cat climb")
+			return AGImage(systemSymbolName: "2.circle", accessibilityDescription: "2nd cat climb")
 		case .firstCategory:
-			return NSImage(systemSymbolName: "1.circle", accessibilityDescription: "1st cat climb")
+			return AGImage(systemSymbolName: "1.circle", accessibilityDescription: "1st cat climb")
 		case .horsCategory:
-			return NSImage(systemSymbolName: "exclamationmark.circle", accessibilityDescription: "hors cat climb")
+			return AGImage(systemSymbolName: "exclamationmark.circle", accessibilityDescription: "hors cat climb")
 		case .sprint:
-			return NSImage(systemSymbolName: "figure.run.circle", accessibilityDescription: "sprint")
+			return AGImage(systemSymbolName: "figure.run.circle", accessibilityDescription: "sprint")
 		case .leftFork:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "left fork")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "left fork")
 		case .rightFork:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "right fork")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "right fork")
 		case .middleFork:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "middle fork")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "middle fork")
 		case .slightLeft:
-			return NSImage(systemSymbolName: "arrow.up.left", accessibilityDescription: "slight left")
+			return AGImage(systemSymbolName: "arrow.up.left", accessibilityDescription: "slight left")
 		case .sharpLeft:
-			return NSImage(systemSymbolName: "arrow.down.left", accessibilityDescription: "sharp left")
+			return AGImage(systemSymbolName: "arrow.down.left", accessibilityDescription: "sharp left")
 		case .slightRight:
-			return NSImage(systemSymbolName: "arrow.up.right", accessibilityDescription: "slight right")
+			return AGImage(systemSymbolName: "arrow.up.right", accessibilityDescription: "slight right")
 		case .sharpRight:
-			return NSImage(systemSymbolName: "arrow.down.right", accessibilityDescription: "sharp right")
+			return AGImage(systemSymbolName: "arrow.down.right", accessibilityDescription: "sharp right")
 		case .uTurn:
-			return NSImage(systemSymbolName: "arrow.uturn.backward", accessibilityDescription: "u turn")
+			return AGImage(systemSymbolName: "arrow.uturn.backward", accessibilityDescription: "u turn")
 		case .segmentStart:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "segment start")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "segment start")
 		case .segmentEnd:
-			return NSImage(systemSymbolName: "circle", accessibilityDescription: "segment end")
+			return AGImage(systemSymbolName: "circle", accessibilityDescription: "segment end")
 		case .invalid:
-			return NSImage(systemSymbolName: "exclamationmark.octagon", accessibilityDescription: "exclamationmark octagon")
+			return AGImage(systemSymbolName: "exclamationmark.octagon", accessibilityDescription: "exclamationmark octagon")
 		}
 	}
 }

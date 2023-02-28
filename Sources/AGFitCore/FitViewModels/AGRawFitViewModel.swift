@@ -6,7 +6,6 @@
 //  Copyright © 2018 Antokne. All rights reserved.
 //
 
-import Cocoa
 import os
 import Foundation
 import FitDataProtocol

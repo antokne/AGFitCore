@@ -1,5 +1,5 @@
 //
-//  AGFitLap.swift
+//  AGFitLapViewModel.swift
 //  FitViewer
 //
 //  Created by Antony Gardiner on 23/02/23.
@@ -11,7 +11,7 @@ import AGCore
 import FitDataProtocol
 
 
-public class AGFitLapViewMode: NSObject {
+public class AGFitLapViewModel: NSObject {
 	
 	private var formatter = AGFormatter.sharedFormatter
 
@@ -35,7 +35,7 @@ public class AGFitLapViewMode: NSObject {
 		guard let distance = lapMessage?.totalDistance else {
 			return nil
 		}
-		return formatter.formatUnitValue(measurement: distance)
+		return formatter.formatValue(value: distance.value, using:UnitLength.meters, usingProvidedUnit: false, withDecimalPoints: 1)
 	}
 	
 	// MARK: - Speed

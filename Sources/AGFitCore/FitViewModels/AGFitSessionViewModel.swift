@@ -38,6 +38,10 @@ public class AGFitSessionViewModel: NSObject {
 	
 	private var powerMetrics = [AGPowerMetric: Double]()
 	
+	/// The laps contained in this session
+	public var laps: [AGFitLapViewModel] = []
+
+	
 	public var isValid: Bool {
 		return duration.doubleValue > 0
 	}
@@ -145,6 +149,13 @@ public class AGFitSessionViewModel: NSObject {
 			return "?"
 		}
 		return formatter.formatValue(value: value, using: UnitPower.watts, usingProvidedUnit: false, withDecimalPoints: 0)
+	}
+
+	public var thresholdPower: Double? {
+		guard let value = self.powerMetrics[.FTP] else {
+			return nil
+		}
+		return value
 	}
 	
 	public var tssFormatted: String {

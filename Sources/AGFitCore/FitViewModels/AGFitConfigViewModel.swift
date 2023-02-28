@@ -6,7 +6,7 @@
 //  Copyright © 2018 Antokne. All rights reserved.
 //
 
-import Cocoa
+import Foundation
 import FitDataProtocol
 
 public class AGFitConfigViewModel: NSObject {

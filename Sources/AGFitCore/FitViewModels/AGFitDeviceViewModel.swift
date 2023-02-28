@@ -6,7 +6,7 @@
 //  Copyright © 2023 WahooFitness. All rights reserved.
 //
 
-import Cocoa
+import Foundation
 import FitDataProtocol
 
 public class AGFitDeviceViewModel: NSObject {
