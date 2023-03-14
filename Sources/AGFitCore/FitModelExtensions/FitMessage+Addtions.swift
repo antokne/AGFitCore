@@ -139,6 +139,29 @@ extension FitMessage: FitMessageGeneralAdditions {
 		return s
 	}
 	
+	public var namesCommaSeparated: String {
+		var names = ""
+		
+		if let message = self as? FitMessageSpecificAdditions {
+			for nameValue in message.nameValues {
+				names += "\(nameValue.name),"
+			}
+		}
+		return names
+	}
+
+	public var valuesCommaSeparated: String {
+		var names = ""
+		
+		if let message = self as? FitMessageSpecificAdditions {
+			for nameValue in message.nameValues {
+				names += "\(nameValue.value),"
+			}
+		}
+		return names
+	}
+
+	
 	public var messageType: UInt16 {
 		Self.globalMessageNumber()
 	}
