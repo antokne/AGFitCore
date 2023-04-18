@@ -10,6 +10,7 @@ import Foundation
 import FitDataProtocol
 
 extension ActivityMessage: FitMessageSpecificAdditions {
+	
 	public var messageName: String {
 		"Activity"
 	}
@@ -44,4 +45,29 @@ extension ActivityMessage: FitMessageSpecificAdditions {
 		
 		return result
 	}
+	
+	public func specificMessageIsValid() -> Bool {
+		
+		if self.timeStamp?.recordDate == nil {
+			return false
+		}
+		
+		return true
+	}
+
+	public var specificInvalidReason: String {
+		
+		var message: String = ""
+		
+		if self.timeStamp?.recordDate == nil {
+			message += "Timestamp is not set. "
+		}
+		
+		if self.totalTimerTime == nil {
+			message += "Total time is not set. "
+		}
+			
+		return message
+	}
+	
 }

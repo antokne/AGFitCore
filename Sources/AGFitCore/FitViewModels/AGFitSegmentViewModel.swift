@@ -11,7 +11,7 @@ import Foundation
 import AGCore
 import FitDataProtocol
 
-public class AGFitSegmentViewModel: NSObject {
+public class AGFitSegmentViewModel: NSObject, Identifiable {
 	
 	public enum AGSegmentType {
 		case strava
@@ -86,6 +86,11 @@ public class AGFitSegmentViewModel: NSObject {
 		case .unknown:
 			return name
 		}
+	}
+	
+	/// This should be unique accross all segments
+	public var id: String {
+		segment.uuid ?? UUID().uuidString
 	}
 	
 	public var type: AGSegmentType {

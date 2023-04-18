@@ -132,4 +132,15 @@ extension SegmentLapMessage: FitMessageSpecificAdditions {
 		
 		return result
 	}
+	
+	public func specificMessageIsValid() -> Bool {
+		true
+	}
+
+	public var specificInvalidReason: String {
+		var message: String = ""
+		
+		return message
+	}
+
 }

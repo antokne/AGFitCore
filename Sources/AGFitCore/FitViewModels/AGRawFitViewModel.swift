@@ -27,4 +27,9 @@ public class AGRawFitViewModel: NSObject {
 			}
 		}
 	}
+	
+	
+	public func filterInvalidMessages() -> [FitMessage] {
+		rawFitMessages.filter( { $0.isValid() })
+	}
 }

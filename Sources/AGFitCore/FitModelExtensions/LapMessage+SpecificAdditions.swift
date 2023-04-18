@@ -136,4 +136,31 @@ extension LapMessage: FitMessageSpecificAdditions {
 		
 		return result
 	}
+	
+	public func specificMessageIsValid() -> Bool {
+		
+		if self.timeStamp?.recordDate == nil {
+			return false
+		}
+		
+		if self.startTime?.recordDate == nil {
+			return false
+		}
+		
+		return true
+		
+	}
+
+	public var specificInvalidReason: String {
+		var message: String = ""
+		if self.timeStamp?.recordDate == nil {
+			message += "timestamp is not set. "
+		}
+		
+		if self.startTime?.recordDate == nil {
+			message += "start time is not set. "
+		}
+		return message
+	}
+
 }

@@ -64,12 +64,20 @@ public protocol FitMessageGeneralAdditions {
 	var summaryCount: Int? { get }
 	var messageType: UInt16 { get }
 	var devDataFields: String? { get }
+	
+	/// Checks if record is valid
+	/// - Returns: returns true if record has valid data.
+	func isValid() -> Bool
+	var invalidReason: String { get }
 }
 
 /// Specific protocol implement by message types that we want to generate out for.
 public protocol FitMessageSpecificAdditions {
 	var messageName: String { get }
 	var nameValues: [NameValueUnitType] { get }
+	
+	func specificMessageIsValid() -> Bool
+	var specificInvalidReason: String { get }
 }
 
 private var internalSummaryKey: UInt8 = 0
@@ -179,4 +187,19 @@ extension FitMessage: FitMessageGeneralAdditions {
 		}
 		return s
 	}
+	
+	public func isValid() -> Bool {
+		if let message = self as? FitMessageSpecificAdditions {
+			return message.specificMessageIsValid()
+		}
+		return true // don't know so ignore for now.
+	}
+	
+	public var invalidReason: String {
+		if let message = self as? FitMessageSpecificAdditions {
+			return message.specificInvalidReason
+		}
+		return ""
+	}
+	
 }
