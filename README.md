@@ -1,3 +1,3 @@
 # AGFitCore
 
-A description of this package.
+A Collection of things related to the Fit file protocol.
