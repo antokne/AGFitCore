@@ -6,9 +6,9 @@ import PackageDescription
 let package = Package(
     name: "AGFitCore",
 	platforms: [
-		.iOS(.v13),
-		.tvOS(.v13),
-		.macOS(.v10_13),
+		.iOS(.v14),
+		.tvOS(.v14),
+		.macOS(.v10_14),
 	],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -31,6 +31,9 @@ let package = Package(
 						   .product(name: "FitDataProtocol", package: "FitDataProtocol")]),
         .testTarget(
             name: "AGFitCoreTests",
-            dependencies: ["AGFitCore"]),
+			dependencies: ["AGFitCore"],
+			resources: [
+				.process("Resources"),
+			]),
     ]
 )

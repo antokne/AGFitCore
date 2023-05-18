@@ -8,7 +8,7 @@
 
 import Foundation
 import FitDataProtocol
-
+import AntMessageProtocol
 
 extension DeviceInfoMessage: FitMessageSpecificAdditions {
 	public var messageName: String {
@@ -52,7 +52,7 @@ extension DeviceInfoMessage: FitMessageSpecificAdditions {
 			result.append(NameValueUnitType(name: "deviceIndex", value: String(deviceIndex.index)))
 		}
 		if let deviceType {
-			result.append(NameValueUnitType(name: "deviceType", value: String(deviceType.rawValue)))
+			result.append(NameValueUnitType(name: "deviceType", value: String(deviceType.stringValue)))
 		}
 		if let hardwareVersion {
 			result.append(NameValueUnitType(name: "hwVer", value: String(hardwareVersion)))
@@ -99,4 +99,65 @@ extension DeviceInfoMessage {
 		return nil
 	}
 	
+}
+
+
+extension DeviceType {
+	var stringValue: String {
+		switch self {
+			
+		case .unknown:
+			return "Unknown"
+		case .sync:
+			return "Sync"
+		case .bikePower:
+			return "Power"
+		case .multiSportSpeedDistance:
+			return "multisportSpeed/Dist"
+		case .controls:
+			return "Control"
+		case .fitnessEquipment:
+			return "FE"
+		case .bloodPressure:
+			return "BP"
+		case .geoCache:
+			return "GeoCache"
+		case .lightElectricVehicle:
+			return "LEV"
+		case .activityMonitor:
+			return "Monitor"
+		case .environment:
+			return "Env"
+		case .racquet:
+			return "Racquet"
+		case .muscleOxygen:
+			return "MO2"
+		case .bikeShifting:
+			return "Gears"
+		case .bikeLights:
+			return "Light"
+		case .bikeLightsSecondary:
+			return "Light"
+		case .bikeRadar:
+			return "Radar"
+		case .tracker:
+			return "Tracker"
+		case .dropperSeatpost:
+			return "Dropper Post"
+		case .bikeSuspension:
+			return "Suspension"
+		case .weightScale:
+			return "Scale"
+		case .heartRate:
+			return "HR"
+		case .bikeSpeedCadence:
+			return "Speed/Cadence"
+		case .bikeCadence:
+			return "Cadence"
+		case .bikeSpeed:
+			return "Speed"
+		case .strideBasedSpeedDistance:
+			return "Stride"
+		}
+	}
 }
