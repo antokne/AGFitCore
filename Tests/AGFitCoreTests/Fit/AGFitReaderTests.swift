@@ -61,7 +61,7 @@ final class AGFitReaderTests: XCTestCase {
 		}
 	}
 	
-	func testLoadDevDataRadarMesssages() throws {
+	func testLoadDevDataRadarMesssagesRecordMessage() throws {
 		
 		guard let fitFile else {
 			XCTFail("No fit file")
@@ -109,15 +109,81 @@ final class AGFitReaderTests: XCTestCase {
 		let currentField = anotherMessage.developerValues[2]
 		XCTAssertEqual(currentField.fieldName, "radar_current")
 
+		let currentFieldValue = try XCTUnwrap(UInt16(currentField.value as? Double ?? Double(UInt16.max)))
+		XCTAssertEqual(currentFieldValue, 0)
+		
 		// passing speed
 		let passingSpeedField = anotherMessage.developerValues[3]
 		XCTAssertEqual(passingSpeedField.fieldName, "passing_speed")
 
+		let passingSpeedValue = try XCTUnwrap(UInt8(passingSpeedField.value as? Double ?? Double(UInt8.max)))
+		XCTAssertEqual(passingSpeedValue, 13)
+		
 		// passing speed abs
 		let passingSpeedAbsField = anotherMessage.developerValues[4]
 		XCTAssertEqual(passingSpeedAbsField.fieldName, "passing_speedabs")
 
+		let passingSpeedAbsValue = try XCTUnwrap(UInt8(passingSpeedAbsField.value as? Double ?? 0))
+		XCTAssertEqual(passingSpeedAbsValue, 26)
+
+	}
+
+	func testLoadDevDataRadarMesssagesLapRecord() throws {
 		
+		guard let fitFile else {
+			XCTFail("No fit file")
+			return
+		}
+		
+		XCTAssertTrue(FileManager.default.fileExists(atPath: fitFile.path))
+		
+		let fitFileReader = AGFitReader(fileUrl: fitFile)
+		
+		fitFileReader.read()
+		
+		let devDataMessages = fitFileReader.messages.filter { $0.developerValues.count > 0 }
+		XCTAssertTrue(!devDataMessages.isEmpty)
+		
+		// Lap Message
+		let lapMessages = devDataMessages.filter { $0 as? LapMessage != nil }
+		XCTAssertTrue(!lapMessages.isEmpty)
+		
+		let lapMessage = try XCTUnwrap(lapMessages.first)
+		
+		var radarLapField = lapMessage.developerValues[0]
+		XCTAssertEqual(radarLapField.fieldName, "radar_lap")
+		
+		let radarLapValue = try XCTUnwrap(UInt16(radarLapField.value as? Double ?? Double(UInt16.max)))
+		XCTAssertEqual(radarLapValue, 257)
+	}
+	
+	func testLoadDevDataRadarMesssagesSessionRecord() throws {
+		
+		guard let fitFile else {
+			XCTFail("No fit file")
+			return
+		}
+		
+		XCTAssertTrue(FileManager.default.fileExists(atPath: fitFile.path))
+		
+		let fitFileReader = AGFitReader(fileUrl: fitFile)
+		
+		fitFileReader.read()
+		
+		let devDataMessages = fitFileReader.messages.filter { $0.developerValues.count > 0 }
+		XCTAssertTrue(!devDataMessages.isEmpty)
+		
+		// Session Message
+		let sessionMessages = devDataMessages.filter { $0 as? SessionMessage != nil }
+		XCTAssertTrue(!sessionMessages.isEmpty)
+		
+		let sessionMessage = try XCTUnwrap(sessionMessages.first)
+		
+		var radarTotalField = sessionMessage.developerValues[0]
+		XCTAssertEqual(radarTotalField.fieldName, "radar_total")
+		
+		let radarTotalValue = try XCTUnwrap(UInt16(radarTotalField.value as? Double ?? Double(UInt16.max)))
+		XCTAssertEqual(radarTotalValue, 257)
 	}
 	
 }
