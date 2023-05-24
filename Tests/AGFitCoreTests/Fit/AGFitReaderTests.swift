@@ -11,25 +11,16 @@ import FitDataProtocol
 
 final class AGFitReaderTests: XCTestCase {
 	
-	var fitFile: URL?
 	
 	override func setUpWithError() throws {
-		// Put setup code here. This method is called before the invocation of each test method in the class.
-		
-		guard let fitFile = Bundle.module.url(forResource: "2022-01-05-12-09-29", withExtension: "fit") else {
-			XCTFail("Cannot load fit file for test")
-			return
-		}
-		self.fitFile = fitFile
 	}
 	
 	override func tearDownWithError() throws {
-		// Put teardown code here. This method is called after the invocation of each test method in the class.
 	}
 	
 	func testLoadFitFile() throws {
 		
-		guard let fitFile else {
+		guard let fitFile = URL.fitURL(name: "2022-01-05-12-09-29", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -46,7 +37,7 @@ final class AGFitReaderTests: XCTestCase {
 	
 	func testPerformanceLoadFitFile() throws {
 		
-		guard let fitFile else {
+		guard let fitFile = URL.fitURL(name: "2022-01-05-12-09-29", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -63,7 +54,7 @@ final class AGFitReaderTests: XCTestCase {
 	
 	func testLoadDevDataRadarMesssagesRecordMessage() throws {
 		
-		guard let fitFile else {
+		guard let fitFile = URL.fitURL(name: "2022-01-05-12-09-29", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -130,7 +121,7 @@ final class AGFitReaderTests: XCTestCase {
 
 	func testLoadDevDataRadarMesssagesLapRecord() throws {
 		
-		guard let fitFile else {
+		guard let fitFile = URL.fitURL(name: "2022-01-05-12-09-29", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -150,7 +141,7 @@ final class AGFitReaderTests: XCTestCase {
 		
 		let lapMessage = try XCTUnwrap(lapMessages.first)
 		
-		var radarLapField = lapMessage.developerValues[0]
+		let radarLapField = lapMessage.developerValues[0]
 		XCTAssertEqual(radarLapField.fieldName, "radar_lap")
 		
 		let radarLapValue = try XCTUnwrap(UInt16(radarLapField.value as? Double ?? Double(UInt16.max)))
@@ -159,7 +150,7 @@ final class AGFitReaderTests: XCTestCase {
 	
 	func testLoadDevDataRadarMesssagesSessionRecord() throws {
 		
-		guard let fitFile else {
+		guard let fitFile = URL.fitURL(name: "2022-01-05-12-09-29", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -179,7 +170,7 @@ final class AGFitReaderTests: XCTestCase {
 		
 		let sessionMessage = try XCTUnwrap(sessionMessages.first)
 		
-		var radarTotalField = sessionMessage.developerValues[0]
+		let radarTotalField = sessionMessage.developerValues[0]
 		XCTAssertEqual(radarTotalField.fieldName, "radar_total")
 		
 		let radarTotalValue = try XCTUnwrap(UInt16(radarTotalField.value as? Double ?? Double(UInt16.max)))

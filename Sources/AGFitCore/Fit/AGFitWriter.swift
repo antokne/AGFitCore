@@ -8,14 +8,14 @@
 import Foundation
 import FitDataProtocol
 
-enum AGFitWriterError: Error {
+public enum AGFitWriterError: Error {
 	case NoFileIdMessage
 	case FailedToWriteFile(error: Error)
 }
 
 
 /*
- Concept: accepts fit messages and periodically writes to a fit file.
+  Accecpts fit messages and then writes to file in one go when requested.
  
  */
 
@@ -24,10 +24,21 @@ public class AGFitWriter {
 	/// file location to write to
 	private var fileURL: URL
 	
-	private var messages: [FitMessage] = []
+	private(set) public var messages: [FitMessage] = []
+	
+	private(set) public var developerDataIDs: [DeveloperDataIdMessage] = []
+	private(set) public var fieldDescriptions: [FieldDescriptionMessage] = []
 	
 	init(fileURL: URL) {
 		self.fileURL = fileURL
+	}
+
+	func appendDeveloperDataId(developerDataID: DeveloperDataIdMessage) {
+		developerDataIDs.append(developerDataID)
+	}
+	
+	func appendFieldDescription(fieldDescription: FieldDescriptionMessage) {
+		fieldDescriptions.append(fieldDescription)
 	}
 	
 	func appendMessage(message: FitMessage) {
@@ -35,12 +46,12 @@ public class AGFitWriter {
 		messages.append(message)
 	}
 
-	func appendMessages(message: [FitMessage]) {
+	func appendMessages(messages: [FitMessage]) {
 		// appends to the list of messages to write to a file
-		messages.append(contentsOf: messages)
+		self.messages.append(contentsOf: messages)
 	}
 	
-	private func write() -> AGFitWriterError? {
+	public func write() -> AGFitWriterError? {
 		
 		let encoder = FitFileEncoder(dataValidityStrategy: .none)
 		
@@ -54,7 +65,6 @@ public class AGFitWriter {
 				fileIdIdMessage = fielIdMsg
 			case let lapMsg as LapMessage:
 				if lapMsg.timeStamp?.recordDate != nil {
-					print("appending LAP message \(message)")
 					writeMessages.append(message)
 				}
 				else {
@@ -62,7 +72,6 @@ public class AGFitWriter {
 				}
 				
 			default:
-				print("appending message \(message)")
 				writeMessages.append(message)
 				break;
 			}
@@ -72,7 +81,10 @@ public class AGFitWriter {
 			return AGFitWriterError.NoFileIdMessage
 		}
 		
-		let result = encoder.encode(fildIdMessage: fileIdIdMessage, messages: writeMessages)
+		let result = encoder.encode(fileIdMessage: fileIdIdMessage,
+									messages: writeMessages,
+									developerDataIDs: developerDataIDs,
+									fieldDescriptions: fieldDescriptions)
 		switch result {
 		case .success(let data):
 			do {
