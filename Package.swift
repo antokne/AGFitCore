@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "AGFitCore",
 	platforms: [
-		.iOS(.v14),
-		.tvOS(.v14),
+		.iOS(.v16),
+		.tvOS(.v16),
 		.macOS(.v10_14),
 	],
     products: [
