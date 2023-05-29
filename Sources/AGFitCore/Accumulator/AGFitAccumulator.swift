@@ -28,7 +28,7 @@ public class AGFitAccumulator: AGAccumulator {
 	/// - Parameter record: fit record message
 	public func accumulateRecord(record: RecordMessage) {
 		
-		guard let timeInterval = record.timeStamp?.recordDate?.timeIntervalSinceReferenceDate else {
+		guard let recordDate = record.timeStamp?.recordDate else {
 			print("Not timestamp cannot add.")
 			return
 		}
@@ -36,31 +36,31 @@ public class AGFitAccumulator: AGAccumulator {
 		do {
 			
 			if let speed = record.speed?.value {
-				try accumulate(timeInterval: timeInterval, value: speed, type: .speed)
+				try accumulate(date: recordDate, value: speed, type: .speed)
 			}
 			
 			if let distance = record.distance?.value {
-				try accumulate(timeInterval: timeInterval, value: distance, type: .distance)
+				try accumulate(date: recordDate, value: distance, type: .distance)
 			}
 			
 			if let power = record.power?.value {
-				try accumulate(timeInterval: timeInterval, value: power, type: .power)
+				try accumulate(date: recordDate, value: power, type: .power)
 			}
 			
 			if let heartrate = record.heartRate?.value {
-				try accumulate(timeInterval: timeInterval, value: heartrate, type: .hr)
+				try accumulate(date: recordDate, value: heartrate, type: .hr)
 			}
 			
 			if let cadence = record.cadence?.value {
-				try accumulate(timeInterval: timeInterval, value: cadence, type: .cadence)
+				try accumulate(date: recordDate, value: cadence, type: .cadence)
 			}
 			
 			if let temperature = record.temperature?.value {
-				try accumulate(timeInterval: timeInterval, value: temperature, type: .temperature)
+				try accumulate(date: recordDate, value: temperature, type: .temperature)
 			}
 			
 			if let lrBalance = record.leftRightBalance?.percentContribution {
-				try accumulate(timeInterval: timeInterval, value: Double(lrBalance), type: .lrBalance)
+				try accumulate(date: recordDate, value: Double(lrBalance), type: .lrBalance)
 			}
 		}
 		catch {
@@ -70,16 +70,16 @@ public class AGFitAccumulator: AGAccumulator {
 	}
 	
 	public func event(event: EventMessage) {
-		guard let timeInterval = event.timeStamp?.recordDate?.timeIntervalSinceReferenceDate else {
+		guard let recordDate = event.timeStamp?.recordDate else {
 			print("Not timestamp cannot add.")
 			return
 		}
 		
 		switch event.eventType {
 		case .start:
-			self.event(event: .resume, at: timeInterval)
+			self.event(event: .resume, at: recordDate)
 		case .stop:
-			self.event(event: .pause, at: timeInterval)
+			self.event(event: .pause, at: recordDate)
 			break
 		default:
 			break
