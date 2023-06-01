@@ -50,6 +50,9 @@ public class AGAcummulatorConverter {
 	}
 	
 	// MARK: - convert raw messages into fit messages.
+		
+	/// Processes all accumulated and raw data and generates fit messages into the the fit write ready for saving to fit file.
+	/// - Returns: Nil or an error
 	public func convert() async -> AGConverterError? {
 	
 		let startDate = acummulator.startDate ?? Date()
@@ -65,11 +68,13 @@ public class AGAcummulatorConverter {
 			
 			// Add Field description messages
 			for devField in devData.fields {
-				fitWriter.appendMessage(message: createFieldDescriptionMessage(name: devField.name,
-																			   developerDataIndex: devData.developerDataIndex,
-																			   fieldDefinitionNumber: devField.fieldDefinitionNumber,
-																			   messageNumber: devField.nativeMessageNum,
-																			   baseUnit: devField.baseUnit))
+				let fieldDescMessage = createFieldDescriptionMessage(
+					name: devField.name,
+					developerDataIndex: devData.developerDataIndex,
+					fieldDefinitionNumber: devField.fieldDefinitionNumber,
+					messageNumber: devField.nativeMessageNum,
+					baseUnit: devField.baseUnit)
+				fitWriter.appendMessage(message: fieldDescMessage)
 			}
 		}
 
@@ -87,16 +92,21 @@ public class AGAcummulatorConverter {
 		let lastRecordDate = createRecordMessages(startDate: startDate)
 		
 		// Add a Stop all Event.
-		fitWriter.appendMessage(message: createEventMessage(date: lastRecordDate, eventType: .stopAll))
+		fitWriter.appendMessage(message: createEventMessage(date: lastRecordDate,
+															eventType: .stopAll))
 		
 		// Add lap message at the end
-		fitWriter.appendMessage(message: createLapMessage(date: lastRecordDate, lapData: acummulator.lapData.currentData))
+		fitWriter.appendMessage(message: createLapMessage(date: lastRecordDate,
+														  lapData: acummulator.lapData.currentData))
 
 		// Add session message at the end
-		fitWriter.appendMessage(message: createSessionMessage(date: lastRecordDate, sessionData: acummulator.sessionData.currentData))
+		fitWriter.appendMessage(message: createSessionMessage(date: lastRecordDate,
+															  sessionData: acummulator.sessionData.currentData))
 
 		// activity message at the very end
-		fitWriter.appendMessage(message: createActivityMessage(startTime: startDate, date: lastRecordDate, allSessions: acummulator.sessionData))
+		fitWriter.appendMessage(message: createActivityMessage(startTime: startDate,
+															   date: lastRecordDate, allSessions:
+																acummulator.sessionData))
 		
 		return nil
 	}
@@ -132,7 +142,6 @@ public class AGAcummulatorConverter {
 				// Add record messages
 				fitWriter.appendMessage(message: createRecordMessage(date: recordDate, rawData: instantData))
 			}
-			
 				
 			lastRecordDate = recordDate
 		}
@@ -363,6 +372,8 @@ public class AGAcummulatorConverter {
 							   eventType: eventType)
 	}
 	
+	/// Writres all the fit messages to a fit file
+	/// - Returns: nil or an error.
 	public func write() async -> AGConverterError? {
 		
 		let result = fitWriter.write()
