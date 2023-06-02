@@ -19,6 +19,39 @@ final class AGAccumulatorConverterTests: XCTestCase {
 	override func tearDownWithError() throws {
 	}
 	
+	func testFieldDescriptionMessages() throws {
+		
+		let url = try XCTUnwrap(URL.tempFitFile())
+		let fitWriter = MockAGFitWriter(fileURL: url)
+		
+		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		let accumulator = AGAccumulator()
+		
+		var fieldDescriptionMessages: [FieldDescriptionMessage] = []
+		let converter = AGAcummulatorConverter(config: config,
+											   acummulator: accumulator,
+											   fitWriter: fitWriter)
+
+		var fields = fieldDescriptionMessages.fields(for: 10)
+		XCTAssertEqual(fields.count, 0)
+		
+		let fieldDescMessage = converter.createFieldDescriptionMessage(
+			name: "bon",
+			developerDataIndex: 0,
+			fieldDefinitionNumber: 1,
+			messageNumber: 20,
+			baseUnit: BaseType.sint8)
+		fieldDescriptionMessages.append(fieldDescMessage)
+		
+		fields = fieldDescriptionMessages.fields(for: 10)
+		XCTAssertEqual(fields.count, 0)
+	
+		fields = fieldDescriptionMessages.fields(for: 20)
+		XCTAssertEqual(fields.count, 1)
+	
+	}
+	
+	
 	func testFitMessageGenerationNoData() async throws {
 		
 		let url = try XCTUnwrap(URL.tempFitFile())

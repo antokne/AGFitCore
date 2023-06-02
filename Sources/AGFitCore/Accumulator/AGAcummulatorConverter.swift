@@ -14,27 +14,6 @@ public enum AGConverterError: Error {
 	case failedToSaveFit
 }
 
-public struct AGDeveloperDataField {
-	var name: String
-	var fieldDefinitionNumber: UInt8
-	var baseUnit: BaseType
-	
-	/// Optional native message num that this field is attached to
-	var nativeMessageNum: UInt16?
-}
-
-public struct AGDeveloperData {
-	var developerDataIndex: UInt8 = 0 // a sensible default
-	var fields: [AGDeveloperDataField] = []
-}
-
-public struct AGConverterConfig {
-	public var name: String?
-	public var sport: Sport
-	public var subSport: SubSport
-	public var developerData: AGDeveloperData?
-}
-
 /// Converts raw data into fit messages.
 
 public class AGAcummulatorConverter {
@@ -43,7 +22,9 @@ public class AGAcummulatorConverter {
 	private let fitWriter: AGFitWriter
 	private let config: AGConverterConfig
 	
-	init(config: AGConverterConfig, acummulator: AGAccumulator, fitWriter: AGFitWriter) {
+	private var fieldDescriptionMessages: [FieldDescriptionMessage] = []
+	
+	public init(config: AGConverterConfig, acummulator: AGAccumulator, fitWriter: AGFitWriter) {
 		self.acummulator = acummulator
 		self.fitWriter = fitWriter
 		self.config = config
@@ -64,7 +45,7 @@ public class AGAcummulatorConverter {
 		if let devData = config.developerData {
 			
 			// Add developer data id messages
-			fitWriter.appendMessage(message: createDeveloperDataIdMessage())
+			fitWriter.appendDeveloperDataId(developerDataID: createDeveloperDataIdMessage(devDataIndex: devData.developerDataIndex))
 			
 			// Add Field description messages
 			for devField in devData.fields {
@@ -74,13 +55,13 @@ public class AGAcummulatorConverter {
 					fieldDefinitionNumber: devField.fieldDefinitionNumber,
 					messageNumber: devField.nativeMessageNum,
 					baseUnit: devField.baseUnit)
-				fitWriter.appendMessage(message: fieldDescMessage)
+				fitWriter.appendFieldDescription(fieldDescription: fieldDescMessage)
+				fieldDescriptionMessages.append(fieldDescMessage)
 			}
 		}
 
 		// Add sport messsage
-		fitWriter.appendMessage(message: createSportMessage(name: config.name,
-															sport: config.sport,
+		fitWriter.appendMessage(message: createSportMessage(sport: config.sport,
 															subSport: config.subSport))
 
 		// If we have sensor data we could also add device info messages.
@@ -230,13 +211,41 @@ public class AGAcummulatorConverter {
 		if let gpsVertAccuracy = rawData.value(for: .verticalAccuracy) {
 			gpsAccuracyMeasurement = Measurement(value: gpsVertAccuracy, unit: .meters)
 		}
-				
-		return RecordMessage(timeStamp: fitTime,
-							 position: position,
-							 distance: distanceMeasurement,
-							 altitude: altitudeMeasurement,
-							 speed: speedMeasurement,
-							 gpsAccuracy: gpsAccuracyMeasurement)
+		
+		let recordMessage = RecordMessage(timeStamp: fitTime,
+										  position: position,
+										  distance: distanceMeasurement,
+										  altitude: altitudeMeasurement,
+										  speed: speedMeasurement,
+										  gpsAccuracy: gpsAccuracyMeasurement)
+
+		// just check developer fields for this message
+		let fields = fieldDescriptionMessages.fields(for: RecordMessage.globalMessageNumber())
+		for field in fields {
+			
+			var value: Any? = nil
+			
+			switch field.definitionNumber {
+			case AGDeveloperData.RadarRangeFiledId:
+				value = rawData.value(for: .radarRanges)
+			case AGDeveloperData.RadarSpeedFiledId:
+				value = rawData.value(for: .radarSpeeds)
+			case AGDeveloperData.RadarCountFiledId:
+				value = rawData.value(for: .radarTargetTotalCount)
+			case AGDeveloperData.RadarPassingSpeedFiledId:
+				value = rawData.value(for: .radarPassingSpeed)
+			case AGDeveloperData.RadarPassingSpeedAbsFiledId:
+				value = rawData.value(for: .radarPassingSpeedAbs)
+			default:
+				break
+			}
+			
+			if let value {
+				recordMessage.addDeveloperData(value: value, fieldDescription: field)
+			}
+		}
+		
+		return recordMessage
 	}
 	
 	internal func createEventMessage(date: Date,
@@ -277,14 +286,33 @@ public class AGAcummulatorConverter {
 			averageSpeedMeasurement = Measurement(value: avgSpeed, unit: .metersPerSecond)
 		}
 		
-		return LapMessage(timeStamp: fitTime,
-						  event: event,
-						  eventType: eventType,
-						  startTime: startTime,
-						  totalElapsedTime: totalElapsedTime,
-						  totalTimerTime: totalTimerTime,
-						  totalDistance: totalDistanceMeasurement,
-						  averageSpeed: averageSpeedMeasurement)
+		let lapMessage = LapMessage(timeStamp: fitTime,
+									event: event,
+									eventType: eventType,
+									startTime: startTime,
+									totalElapsedTime: totalElapsedTime,
+									totalTimerTime: totalTimerTime,
+									totalDistance: totalDistanceMeasurement,
+									averageSpeed: averageSpeedMeasurement)
+
+		let fields = fieldDescriptionMessages.fields(for: LapMessage.globalMessageNumber())
+		for field in fields {
+			
+			var value: Any? = nil
+			
+			switch field.definitionNumber {
+			case AGDeveloperData.RadarCountLapFiledId:
+				value = lapData.value(for: .radarTargetTotalCount, avgType: .last)
+			default:
+				break
+			}
+			
+			if let value {
+				lapMessage.addDeveloperData(value: value, fieldDescription: field)
+			}
+		}
+		
+		return lapMessage
 	}
 
 	internal func createSessionMessage(date: Date, sessionData: AGAccumulatorData) -> SessionMessage {
@@ -327,17 +355,36 @@ public class AGAcummulatorConverter {
 		// num laps
 		let numLaps: UInt16 = 1
 		
-		return SessionMessage(timeStamp: fitTime,
-							  event: event,
-							  eventType: eventType,
-							  startTime: startTime,
-							  sport: sport,
-							  subSport: subSport,
-							  totalElapsedTime: totalElapsedTime,
-							  totalTimerTime: totalSessionTime,
-							  totalDistance: totalDistanceMeasurement,
-							  averageSpeed: averageSpeedMeasurement,
-							  numberOfLaps: numLaps)
+		let sessionMessage = SessionMessage(timeStamp: fitTime,
+											event: event,
+											eventType: eventType,
+											startTime: startTime,
+											sport: sport,
+											subSport: subSport,
+											totalElapsedTime: totalElapsedTime,
+											totalTimerTime: totalSessionTime,
+											totalDistance: totalDistanceMeasurement,
+											averageSpeed: averageSpeedMeasurement,
+											numberOfLaps: numLaps)
+		
+		let fields = fieldDescriptionMessages.fields(for: SessionMessage.globalMessageNumber())
+		for field in fields {
+			
+			var value: Any? = nil
+			
+			switch field.definitionNumber {
+			case AGDeveloperData.RadarCountLapFiledId:
+				value = sessionData.value(for: .radarTargetTotalCount, avgType: .last)
+			default:
+				break
+			}
+			
+			if let value {
+				sessionMessage.addDeveloperData(value: value, fieldDescription: field)
+			}
+		}
+		
+		return sessionMessage
 	}
 	
 	internal func createActivityMessage(startTime: Date, date: Date, allSessions: AGAccumulatorMultiData) -> ActivityMessage {
@@ -384,4 +431,11 @@ public class AGAcummulatorConverter {
 		return nil
 	}
 	
+}
+
+extension Array where Element == FieldDescriptionMessage {
+	
+	func fields(for messageNum: UInt16) -> [FieldDescriptionMessage] {
+		self.filter { ($0.messageNumber ?? 0) == messageNum }
+	}
 }
