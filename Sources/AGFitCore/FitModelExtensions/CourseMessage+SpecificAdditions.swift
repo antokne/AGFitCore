@@ -38,7 +38,7 @@ extension CourseMessage: FitMessageSpecificAdditions {
 	}
 
 	public var specificInvalidReason: String {
-		var message: String = ""
+		let message: String = ""
 		
 		return message
 	}
