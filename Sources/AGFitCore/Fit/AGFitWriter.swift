@@ -29,7 +29,7 @@ public class AGFitWriter {
 	private(set) public var developerDataIDs: [DeveloperDataIdMessage] = []
 	private(set) public var fieldDescriptions: [FieldDescriptionMessage] = []
 	
-	init(fileURL: URL) {
+	public init(fileURL: URL) {
 		self.fileURL = fileURL
 	}
 
@@ -43,6 +43,17 @@ public class AGFitWriter {
 	
 	func appendMessage(message: FitMessage) {
 		// appends to the list of messages to write to a file
+		
+		guard message as? DeveloperDataIdMessage == nil else {
+			assert(false, "Use add appendDeveloperDataId method")
+			return
+		}
+		guard message as? DeveloperDataIdMessage == nil else {
+			assert(false, "Use add appendFieldDescription method")
+			return
+		}
+
+		
 		messages.append(message)
 	}
 
