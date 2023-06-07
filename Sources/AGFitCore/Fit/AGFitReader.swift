@@ -15,9 +15,9 @@ public protocol AGFitReaderProtocol {
 	func receivedMessage(message: FitMessage)
 }
 
-class AGFitReader {
+public class AGFitReader {
 	
-	static var defaultMessages: [FitMessage.Type] {
+	public static var defaultMessages: [FitMessage.Type] {
 		var messages = FitFileDecoder.defaultMessages
 		messages.append(PausedMessage.self)
 		return messages
@@ -33,12 +33,12 @@ class AGFitReader {
 	
 	private var fitDecoder = FitFileDecoder(crcCheckingStrategy: .ignore)
 	
-	init(fileUrl: URL, messageDelegate: AGFitReaderProtocol? = nil) {
+	public init(fileUrl: URL, messageDelegate: AGFitReaderProtocol? = nil) {
 		self.url = fileUrl
 		self.messageDelegate = messageDelegate
 	}
 	
-	func readSummaryMessagesOnly() {
+	public func readSummaryMessagesOnly() {
 		read(messageTypes: [SessionMessage.self, LapMessage.self, DeviceInfoMessage.self])
 	}
 
@@ -46,7 +46,9 @@ class AGFitReader {
 	/// - Parameters:
 	///   - url: url of file to load
 	///   - sampleRate: number of samples to skip
-	func read(messageTypes: [FitMessage.Type] = AGFitReader.defaultMessages) {
+	public func read(messageTypes: [FitMessage.Type] = AGFitReader.defaultMessages) {
+		
+		// TODO: Return and Error.
 		
 		log.debug("About to start read file")
 		guard let fileData = try? Data(contentsOf: url) else {
