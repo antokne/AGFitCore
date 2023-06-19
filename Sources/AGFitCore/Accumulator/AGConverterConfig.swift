@@ -60,7 +60,7 @@ extension AGDeveloperData {
 		
 		var fields: [AGDeveloperDataField] = []
 		
-		if accumulatedData.rawData.arrayData.values.first(where: { $0.type == .radarRanges } ) != nil {
+		if accumulatedData.rawData.arrayData.values.first(where: { $0.values(for: .radarRanges)?.isEmpty == false } ) != nil {
 			// add record message developer data
 			fields.append(AGDeveloperDataField(name: "radar_ranges",
 											   fieldDefinitionNumber: RadarRangeFiledId,
@@ -68,7 +68,7 @@ extension AGDeveloperData {
 											   nativeMessageNum: RecordMessage.globalMessageNumber()))
 		}
 		
-		if accumulatedData.rawData.arrayData.values.first(where: { $0.type == .radarSpeeds } ) != nil {
+		if accumulatedData.rawData.arrayData.values.first(where: { $0.values(for: .radarSpeeds)?.isEmpty == false } ) != nil {
 			// add record message developer data
 			fields.append(AGDeveloperDataField(name: "radar_speeds",
 											   fieldDefinitionNumber: RadarSpeedFiledId,

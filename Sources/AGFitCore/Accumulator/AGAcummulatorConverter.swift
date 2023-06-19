@@ -106,6 +106,8 @@ public class AGAcummulatorConverter {
 				continue
 			}
 			
+			let arrayData = acummulator.rawData.arrayData[second]
+			
 			// if not paused and now paused then
 			if !paused && instantData.paused {
 				// add a pause event
@@ -121,7 +123,9 @@ public class AGAcummulatorConverter {
 			
 			if !paused {
 				// Add record messages
-				fitWriter.appendMessage(message: createRecordMessage(date: recordDate, rawData: instantData))
+				fitWriter.appendMessage(message: createRecordMessage(date: recordDate,
+																	 rawData: instantData,
+																	arrayData: arrayData))
 			}
 				
 			lastRecordDate = recordDate
@@ -176,7 +180,9 @@ public class AGAcummulatorConverter {
 		return SportMessage(name: name, sport: sport, subSport: subSport)
 	}
 	
-	internal func createRecordMessage(date: Date, rawData: AGAccumulatorRawInstantData) -> RecordMessage {
+	internal func createRecordMessage(date: Date,
+									  rawData: AGAccumulatorRawInstantData,
+									  arrayData: AGAccumulatorRawArrayInstantData?) -> RecordMessage {
 		let fitTime = FitTime(date: date)
 		
 		// Position lat/lng
@@ -227,15 +233,26 @@ public class AGAcummulatorConverter {
 			
 			switch field.definitionNumber {
 			case AGDeveloperData.RadarRangeFiledId:
-				value = rawData.value(for: .radarRanges)
+				if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
+					value = doubles.map { Int16($0) } // convert to array of UInt16 as stored.
+				}
 			case AGDeveloperData.RadarSpeedFiledId:
-				value = rawData.value(for: .radarSpeeds)
+				if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
+					value = doubles.map { UInt8($0) } // convert to array of UInt8 as stored.
+				}
 			case AGDeveloperData.RadarCountFiledId:
-				value = rawData.value(for: .radarTargetTotalCount)
+				if let doubleValue = rawData.value(for: .radarTargetTotalCount) {
+					value = UInt16(doubleValue)
+				}
 			case AGDeveloperData.RadarPassingSpeedFiledId:
-				value = rawData.value(for: .radarPassingSpeed)
+				if let doubleValue = rawData.value(for: .radarPassingSpeed) {
+					value = UInt8(doubleValue)
+				}
 			case AGDeveloperData.RadarPassingSpeedAbsFiledId:
-				value = rawData.value(for: .radarPassingSpeedAbs)
+				if let doubleValue = rawData.value(for: .radarPassingSpeedAbs) {
+					value = UInt8(doubleValue)
+				}
+					
 			default:
 				break
 			}
@@ -286,6 +303,12 @@ public class AGAcummulatorConverter {
 			averageSpeedMeasurement = Measurement(value: avgSpeed, unit: .metersPerSecond)
 		}
 		
+		// max speed
+		var maxSpeedMeasurement: Measurement<UnitSpeed>? = nil
+		if let maxSpeed = lapData.value(for: .speed, avgType: .max) {
+			maxSpeedMeasurement = Measurement(value: maxSpeed, unit: .metersPerSecond)
+		}
+		
 		let lapMessage = LapMessage(timeStamp: fitTime,
 									event: event,
 									eventType: eventType,
@@ -293,7 +316,8 @@ public class AGAcummulatorConverter {
 									totalElapsedTime: totalElapsedTime,
 									totalTimerTime: totalTimerTime,
 									totalDistance: totalDistanceMeasurement,
-									averageSpeed: averageSpeedMeasurement)
+									averageSpeed: averageSpeedMeasurement,
+									maximumSpeed: maxSpeedMeasurement)
 
 		let fields = fieldDescriptionMessages.fields(for: LapMessage.globalMessageNumber())
 		for field in fields {
@@ -302,7 +326,10 @@ public class AGAcummulatorConverter {
 			
 			switch field.definitionNumber {
 			case AGDeveloperData.RadarCountLapFiledId:
-				value = lapData.value(for: .radarTargetTotalCount, avgType: .last)
+				if let doubleValue = lapData.value(for: .radarTargetTotalCount, avgType: .last) {
+					value = UInt16(doubleValue)
+				}
+				
 			default:
 				break
 			}
@@ -346,6 +373,12 @@ public class AGAcummulatorConverter {
 			averageSpeedMeasurement = Measurement(value: avgSpeed, unit: .metersPerSecond)
 		}
 		
+		// max speed
+		var maximumSpeedMeasurement: Measurement<UnitSpeed>? = nil
+		if let maxSpeed = sessionData.value(for: .speed, avgType: .max) {
+			maximumSpeedMeasurement = Measurement(value: maxSpeed, unit: .metersPerSecond)
+		}
+		
 		// total distance
 		var totalDistanceMeasurement: Measurement<UnitLength>? = nil
 		if let totalDistance = sessionData.value(for: .distance, avgType: .last) {
@@ -365,6 +398,7 @@ public class AGAcummulatorConverter {
 											totalTimerTime: totalSessionTime,
 											totalDistance: totalDistanceMeasurement,
 											averageSpeed: averageSpeedMeasurement,
+											maximumSpeed: maximumSpeedMeasurement,
 											numberOfLaps: numLaps)
 		
 		let fields = fieldDescriptionMessages.fields(for: SessionMessage.globalMessageNumber())
@@ -373,8 +407,10 @@ public class AGAcummulatorConverter {
 			var value: Any? = nil
 			
 			switch field.definitionNumber {
-			case AGDeveloperData.RadarCountLapFiledId:
-				value = sessionData.value(for: .radarTargetTotalCount, avgType: .last)
+			case AGDeveloperData.RadarCountSessionFiledId:
+				if let doubleValue = sessionData.value(for: .radarTargetTotalCount, avgType: .last) {
+					value = UInt16(doubleValue)
+				}
 			default:
 				break
 			}

@@ -238,7 +238,9 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		XCTAssertEqual(lapMessage.totalElapsedTime?.value, 10)
 		XCTAssertEqual(lapMessage.totalDistance?.value, 10)
 		XCTAssertEqual(lapMessage.eventType, EventType.stop)
-		
+		XCTAssertEqual(lapMessage.averageSpeed?.value, 1)
+		XCTAssertEqual(lapMessage.maximumSpeed?.value, 1)
+
 		
 		// session message
 		let sessionMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? SessionMessage) != nil }) as? SessionMessage)
@@ -250,6 +252,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		XCTAssertEqual(sessionMessage.sport, Sport.cycling)
 		XCTAssertEqual(sessionMessage.subSport, SubSport.road)
 		XCTAssertEqual(sessionMessage.eventType, EventType.stop)
+		XCTAssertEqual(sessionMessage.averageSpeed?.value, 1)
+		XCTAssertEqual(sessionMessage.maximumSpeed?.value, 1)
 		
 		// activity message
 		let activityMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? ActivityMessage) != nil }) as? ActivityMessage)
@@ -261,7 +265,82 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		XCTAssertEqual(activityMessage.eventType, EventType.stop)
 		XCTAssertEqual(activityMessage.totalTimerTime?.value, 15)
 	}
+	
+	func testFitMessageGenerationRadarData() async throws {
+		
+		let url = try XCTUnwrap(URL.tempFitFile())
+		let fitWriter = MockAGFitWriter(fileURL: url)
+		
+		var config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		let accumulator = AGAccumulator()
+		
+		let date = Date()
+		accumulator.event(event: .start, at: date)
+		
+		try accumulator.accumulate(date: date.plus(1), value: 1, type: .speed)
+		try accumulator.accumulate(date: date.plus(2), value: 1, type: .speed)
+		try accumulator.accumulate(date: date.plus(3), value: 1, type: .speed)
+		try accumulator.accumulate(date: date.plus(4), value: 1, type: .speed)
+		try accumulator.accumulate(date: date.plus(5), value: 1, type: .speed)
+		
+		let radarRanges = AGDataTypeArrayValue(type: .radarRanges, values: [1,2,3,4,5,6,7,8])
+		try accumulator.accumulate(date: date.plus(1), arrayValue: radarRanges)
+		try accumulator.accumulate(date: date.plus(2), arrayValue: radarRanges)
+		try accumulator.accumulate(date: date.plus(3), arrayValue: radarRanges)
+		try accumulator.accumulate(date: date.plus(4), arrayValue: radarRanges)
+		try accumulator.accumulate(date: date.plus(5), arrayValue: radarRanges)
+		
+		let radarSpeeds = AGDataTypeArrayValue(type: .radarSpeeds, values: [5,5,5,5,5,5,5,5])
+		try accumulator.accumulate(date: date.plus(1), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: date.plus(2), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: date.plus(3), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: date.plus(4), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: date.plus(5), arrayValue: radarSpeeds)
+		
+		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarPassingSpeed)
+		
+		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarPassingSpeedAbs)
+		
+		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarTargetTotalCount)
+		
+		accumulator.event(event: .stop, at: date)
+		
+		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator)	
+		let converter = AGAcummulatorConverter(config: config,
+											   acummulator: accumulator,
+											   fitWriter: fitWriter)
+		
+		
+		let result = await converter.convert()
+		XCTAssertNil(result)
+		
+		XCTAssertEqual(fitWriter.messages.count, 12)
+		
+		let recordMessages = fitWriter.messages.filter { $0 as? RecordMessage != nil }
+		XCTAssertEqual(recordMessages.count, 5)
+		
+		let firstRecordMessage = try XCTUnwrap(recordMessages.first)
+		
+		
+
+		
+	}
 }
+
+
+
 
 
 class MockAGFitWriter: AGFitWriter {
