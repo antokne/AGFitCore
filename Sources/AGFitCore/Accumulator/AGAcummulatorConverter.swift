@@ -234,11 +234,23 @@ public class AGAcummulatorConverter {
 			switch field.definitionNumber {
 			case AGDeveloperData.RadarRangeFiledId:
 				if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
-					value = doubles.map { Int16($0) } // convert to array of UInt16 as stored.
+					var tempValue: [Int16] = doubles.map { Int16($0) } // convert to array of UInt16 as stored.
+					while tempValue.count < 8 { tempValue.append(Int16(0)) }
+					value = tempValue
+				}
+				else {
+					let tempValue: [Int16] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+					value = tempValue
 				}
 			case AGDeveloperData.RadarSpeedFiledId:
 				if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
-					value = doubles.map { UInt8($0) } // convert to array of UInt8 as stored.
+					var tempValue: [UInt8] = doubles.map { UInt8($0) } // convert to array of UInt8 as stored.
+					while tempValue.count < 8 { tempValue.append(UInt8(0)) }
+					value = tempValue
+				}
+				else {
+					let tempValue: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+					value = tempValue
 				}
 			case AGDeveloperData.RadarCountFiledId:
 				if let doubleValue = rawData.value(for: .radarTargetTotalCount) {

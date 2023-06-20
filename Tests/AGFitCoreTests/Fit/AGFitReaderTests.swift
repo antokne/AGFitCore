@@ -177,4 +177,35 @@ final class AGFitReaderTests: XCTestCase {
 		XCTAssertEqual(radarTotalValue, 257)
 	}
 	
+	func testRadarDevDataFieldsRecorded() throws {
+		
+		guard let fitFile = URL.fitURL(name: "2023-06-20-131442-Stradale", ext: "fit") else {
+			XCTFail("No fit file")
+			return
+		}
+		
+		XCTAssertTrue(FileManager.default.fileExists(atPath: fitFile.path))
+		
+		let fitFileReader = AGFitReader(fileUrl: fitFile)
+		
+		fitFileReader.read()
+
+		let devDataMessages = fitFileReader.messages.filter { $0.developerValues.count > 0 }
+		XCTAssertTrue(!devDataMessages.isEmpty)
+		
+		let recordMessages = devDataMessages.filter { $0 as? RecordMessage != nil }
+		XCTAssertTrue(!recordMessages.isEmpty)
+		
+		// this is just a record I know has some data...
+		let anotherMessage = try XCTUnwrap(recordMessages[183])
+		
+		// radar ranges
+		var rangesDataField = anotherMessage.developerValues[0]
+		XCTAssertEqual(rangesDataField.fieldName, "radar_ranges")
+		
+		let rangesValues = try XCTUnwrap(rangesDataField.value as? [Int16])
+		XCTAssertEqual(rangesValues.count, 8)
+		
+	}
+	
 }
