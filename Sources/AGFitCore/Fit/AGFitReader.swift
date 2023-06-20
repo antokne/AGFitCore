@@ -27,7 +27,7 @@ public class AGFitReader {
 	
 	private var messageDelegate: AGFitReaderProtocol?
 	
-	let log = Logger(subsystem: Bundle.mainBundleId ?? "AGFitReader", category: "AGFitReader")
+	let log = Logger(subsystem: "com.antokne.fitcore", category: "AGFitReader")
 
 	private(set) public var messages: [FitMessage] = []
 	
