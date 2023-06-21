@@ -317,7 +317,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: date)
 		
-		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator)	
+		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator, metric: true)	
 		let converter = AGAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)

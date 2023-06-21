@@ -34,15 +34,18 @@ public struct AGConverterConfig {
 	public var sport: Sport
 	public var subSport: SubSport
 	public var developerData: AGDeveloperData?
-	
+	var metric: Bool
+
 	public init(name: String? = nil,
 				sport: Sport = .cycling,
 				subSport: SubSport = .road,
-				developerData: AGDeveloperData? = nil) {
+				developerData: AGDeveloperData? = nil,
+				metric: Bool) {
 		self.name = name
 		self.sport = sport
 		self.subSport = subSport
 		self.developerData = developerData
+		self.metric = metric
 	}
 }
 

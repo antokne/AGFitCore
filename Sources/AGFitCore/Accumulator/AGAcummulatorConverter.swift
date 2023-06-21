@@ -234,7 +234,7 @@ public class AGAcummulatorConverter {
 			switch field.definitionNumber {
 			case AGDeveloperData.RadarRangeFiledId:
 				if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
-					var tempValue: [Int16] = doubles.map { Int16($0) } // convert to array of UInt16 as stored.
+					var tempValue: [Int16] = doubles.map { Int16(distanceConverted($0)) } // convert to array of correct units and UInt16 as stored.
 					while tempValue.count < 8 { tempValue.append(Int16(0)) }
 					value = tempValue
 				}
@@ -244,7 +244,7 @@ public class AGAcummulatorConverter {
 				}
 			case AGDeveloperData.RadarSpeedFiledId:
 				if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
-					var tempValue: [UInt8] = doubles.map { UInt8($0) } // convert to array of UInt8 as stored.
+					var tempValue: [UInt8] = doubles.map { UInt8(speedConverted($0)) } // convert to array of correct units and UInt8 as stored.
 					while tempValue.count < 8 { tempValue.append(UInt8(0)) }
 					value = tempValue
 				}
@@ -275,6 +275,15 @@ public class AGAcummulatorConverter {
 		}
 		
 		return recordMessage
+	}
+	
+	func speedConverted(_ mps: Double) -> Double {
+		config.metric ? AGFormatter.sharedFormatter.metersPerSecondToKilometersPerHour(mps: mps) :
+		AGFormatter.sharedFormatter.metersPerSecondToMilesPerHour(mps: mps)
+	}
+	
+	func distanceConverted(_ meters: Double) -> Double {
+		config.metric ? meters : AGFormatter.sharedFormatter.metersTofeet(meters: meters)
 	}
 	
 	internal func createEventMessage(date: Date,
