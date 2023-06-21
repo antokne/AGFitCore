@@ -179,7 +179,7 @@ final class AGFitReaderTests: XCTestCase {
 	
 	func testRadarDevDataFieldsRecorded() throws {
 		
-		guard let fitFile = URL.fitURL(name: "2023-06-20-131442-Stradale", ext: "fit") else {
+		guard let fitFile = URL.fitURL(name: "2023-06-21-111726-Stradale", ext: "fit") else {
 			XCTFail("No fit file")
 			return
 		}
@@ -197,7 +197,7 @@ final class AGFitReaderTests: XCTestCase {
 		XCTAssertTrue(!recordMessages.isEmpty)
 		
 		// this is just a record I know has some data...
-		let anotherMessage = try XCTUnwrap(recordMessages[183])
+		let anotherMessage = try XCTUnwrap(recordMessages[24])
 		
 		// radar ranges
 		var rangesDataField = anotherMessage.developerValues[0]
