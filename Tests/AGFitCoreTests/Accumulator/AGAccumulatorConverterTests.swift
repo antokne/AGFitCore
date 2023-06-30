@@ -24,7 +24,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		var fieldDescriptionMessages: [FieldDescriptionMessage] = []
@@ -57,7 +57,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
@@ -138,7 +138,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
@@ -271,7 +271,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		var config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road)
+		var config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
@@ -317,7 +317,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: date)
 		
-		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator, metric: true)	
+		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator)
 		let converter = AGAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)

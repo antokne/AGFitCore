@@ -208,4 +208,66 @@ final class AGFitReaderTests: XCTestCase {
 		
 	}
 	
+	func testRadarDevDataFieldsValidate() throws {
+		
+		guard let fitFile = URL.fitURL(name: "2023-06-23-164718-Veloscope", ext: "fit") else {
+			XCTFail("No fit file")
+			return
+		}
+		
+		XCTAssertTrue(FileManager.default.fileExists(atPath: fitFile.path))
+		
+		let fitFileReader = AGFitReader(fileUrl: fitFile)
+		
+		fitFileReader.read()
+		
+		let devDataMessages = fitFileReader.messages.filter { $0.developerValues.count > 0 }
+		XCTAssertTrue(!devDataMessages.isEmpty)
+		
+		let recordMessages = devDataMessages.filter { $0 as? RecordMessage != nil }
+		XCTAssertTrue(!recordMessages.isEmpty)
+		
+		
+		for message in recordMessages {
+			
+			
+			var rangesDataField = message.developerValues[0]
+			let rangesName = try XCTUnwrap(rangesDataField.fieldName)
+			let rangesValues = try XCTUnwrap(rangesDataField.value as? [Int16])
+			XCTAssertEqual(rangesValues.count, 8)
+			
+			//print("\(rangesName): \(rangesValues)")
+			
+			var speedDataField = message.developerValues[1]
+			let speedName = try XCTUnwrap(speedDataField.fieldName)
+			let speedValues = try XCTUnwrap(speedDataField.value as? [UInt8])
+			XCTAssertEqual(speedValues.count, 8)
+			
+			print("\(speedName): \(speedValues)")
+
+			var passingSpeedDataField = message.developerValues[2]
+			let passingSpeedName = try XCTUnwrap(passingSpeedDataField.fieldName)
+			let passingSpeed = try XCTUnwrap(passingSpeedDataField.value as? Double)
+
+			//print("\(passingSpeedName): \(passingSpeed)")
+
+			
+			var passingSpeedAbsDataField = message.developerValues[3]
+			let passingSpeedAbsName = try XCTUnwrap(passingSpeedAbsDataField.fieldName)
+			let passingSpeedAbs = try XCTUnwrap(passingSpeedAbsDataField.value as? Double)
+			
+			//print("\(passingSpeedAbsName): \(passingSpeedAbs)")
+
+			var radarCurrentDataField = message.developerValues[4]
+			let radarCurrentName = try XCTUnwrap(radarCurrentDataField.fieldName)
+			let radarCurrent = try XCTUnwrap(radarCurrentDataField.value as? Double)
+			
+			//print("\(radarCurrentName): \(radarCurrent)")
+
+		}
+		
+	
+		
+	}
+	
 }
