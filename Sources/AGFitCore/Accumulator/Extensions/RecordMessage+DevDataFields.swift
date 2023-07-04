@@ -38,7 +38,7 @@ extension RecordMessage {
             var value: Any? = nil
             
             switch field.definitionNumber {
-            case AGDeveloperData.RadarRangeFiledId:
+            case AGFitDeveloperData.RadarRangeFieldId:
                 if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
                     var tempValue: [Int16] = doubles.map { Int16($0) } // convert to array of correct units and UInt16 as stored.
                     while tempValue.count < 8 { tempValue.append(Int16(0)) }
@@ -50,7 +50,7 @@ extension RecordMessage {
                 else {
                     value = radarNoRanges
                 }
-            case AGDeveloperData.RadarSpeedFiledId:
+            case AGFitDeveloperData.RadarSpeedFieldId:
                 if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
                     var tempValue: [UInt8] = doubles.map { UInt8($0) } // convert to array of correct units and UInt8 as stored.
                     while tempValue.count < 8 { tempValue.append(UInt8(0)) }
@@ -62,15 +62,15 @@ extension RecordMessage {
                 else {
                     value = radarNoSpeeds
                 }
-            case AGDeveloperData.RadarCountFiledId:
+            case AGFitDeveloperData.RadarCountFieldId:
                 if let doubleValue = rawData.value(for: .radarTargetTotalCount) {
                     value = UInt16(doubleValue)
                 }
-            case AGDeveloperData.RadarPassingSpeedFiledId:
+            case AGFitDeveloperData.RadarPassingSpeedFieldId:
                 if let doubleValue = rawData.value(for: .radarPassingSpeed) {
                     value = UInt8(doubleValue)
                 }
-            case AGDeveloperData.RadarPassingSpeedAbsFiledId:
+            case AGFitDeveloperData.RadarPassingSpeedAbsFieldId:
                 if let doubleValue = rawData.value(for: .radarPassingSpeedAbs) {
                     value = UInt8(doubleValue)
                 }

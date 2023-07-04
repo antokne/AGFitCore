@@ -10,21 +10,26 @@ import AGCore
 import FitDataProtocol
 import AntMessageProtocol
 
-public enum AGConverterError: Error {
+public enum AGFitConverterError: Error {
 	case failedToSaveFit
 }
 
 /// Converts raw data into fit messages.
-
-public class AGAcummulatorConverter {
+/// Note that this converts accumulated data into a fit file
+public class AGFitAcummulatorConverter {
 
 	private let acummulator: AGAccumulator
 	private let fitWriter: AGFitWriter
-	private let config: AGConverterConfig
+	private let config: AGFitConverterConfig
 	
 	private var fieldDescriptionMessages: [FieldDescriptionMessage] = []
-	
-	public init(config: AGConverterConfig, acummulator: AGAccumulator, fitWriter: AGFitWriter) {
+    
+    /// Converts accumulated data into fit messages
+    /// - Parameters:
+    ///   - config: config to use during the process
+    ///   - acummulator: the accumulated data to convert
+    ///   - fitWriter: the fit write to use to write to a file.
+	public init(config: AGFitConverterConfig, acummulator: AGAccumulator, fitWriter: AGFitWriter) {
 		self.acummulator = acummulator
 		self.fitWriter = fitWriter
 		self.config = config
@@ -32,9 +37,9 @@ public class AGAcummulatorConverter {
 	
 	// MARK: - convert raw messages into fit messages.
 		
-	/// Processes all accumulated and raw data and generates fit messages into the the fit write ready for saving to fit file.
+	/// Processes all accumulated and raw data and generates fit messages into the the fit writer ready for saving to fit file.
 	/// - Returns: Nil or an error
-	public func convert() async -> AGConverterError? {
+	public func convertToFitMessages() async -> AGFitConverterError? {
 	
 		let startDate = acummulator.startDate ?? Date()
 		
@@ -92,6 +97,9 @@ public class AGAcummulatorConverter {
 		return nil
 	}
 	
+    /// Interates over all accumulated raw data and creates a record message at 1Hz.
+    /// - Parameter startDate: the activity start date.
+    /// - Returns: Last record date.
 	internal func createRecordMessages(startDate: Date) -> Date {
 	
 		var paused = false
@@ -302,7 +310,7 @@ public class AGAcummulatorConverter {
 			var value: Any? = nil
 			
 			switch field.definitionNumber {
-			case AGDeveloperData.RadarCountLapFiledId:
+			case AGFitDeveloperData.RadarCountLapFieldId:
 				if let doubleValue = lapData.value(for: .radarTargetTotalCount, avgType: .last) {
 					value = UInt16(doubleValue)
 				}
@@ -384,7 +392,7 @@ public class AGAcummulatorConverter {
 			var value: Any? = nil
 			
 			switch field.definitionNumber {
-			case AGDeveloperData.RadarCountSessionFiledId:
+			case AGFitDeveloperData.RadarCountSessionFieldId:
 				if let doubleValue = sessionData.value(for: .radarTargetTotalCount, avgType: .last) {
 					value = UInt16(doubleValue)
 				}
@@ -434,11 +442,11 @@ public class AGAcummulatorConverter {
 	
 	/// Writres all the fit messages to a fit file
 	/// - Returns: nil or an error.
-	public func write() async -> AGConverterError? {
+	public func write() async -> AGFitConverterError? {
 		
 		let result = fitWriter.write()
 		if result != nil {
-			return AGConverterError.failedToSaveFit
+			return AGFitConverterError.failedToSaveFit
 		}
 		
 		return nil

@@ -24,11 +24,11 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
+		let config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		var fieldDescriptionMessages: [FieldDescriptionMessage] = []
-		let converter = AGAcummulatorConverter(config: config,
+		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)
 
@@ -57,19 +57,19 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
+		let config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
 		accumulator.event(event: .start, at: date)
 		accumulator.event(event: .stop, at: date)
 		
-		let converter = AGAcummulatorConverter(config: config,
+		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)
 		
 	
-		let result = await converter.convert()
+		let result = await converter.convertToFitMessages()
 		XCTAssertNil(result)
 		
 		XCTAssertEqual(fitWriter.messages.count, 7)
@@ -138,7 +138,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		let config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
+		let config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
@@ -182,12 +182,12 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: date)
 		
-		let converter = AGAcummulatorConverter(config: config,
+		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)
 		
 		
-		let result = await converter.convert()
+		let result = await converter.convertToFitMessages()
 		XCTAssertNil(result)
 		
 		XCTAssertEqual(fitWriter.messages.count, 19)
@@ -271,7 +271,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let url = try XCTUnwrap(URL.tempFitFile())
 		let fitWriter = MockAGFitWriter(fileURL: url)
 		
-		var config = AGConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
+		var config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
 		let date = Date()
@@ -317,13 +317,13 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: date)
 		
-		config.developerData = AGDeveloperData.generateDeveloperData(index: 0, from: accumulator)
-		let converter = AGAcummulatorConverter(config: config,
+		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
+		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)
 		
 		
-		let result = await converter.convert()
+		let result = await converter.convertToFitMessages()
 		XCTAssertNil(result)
 		
 		XCTAssertEqual(fitWriter.messages.count, 12)
