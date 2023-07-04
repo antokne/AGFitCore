@@ -102,30 +102,31 @@ public class AGAcummulatorConverter {
 			
 			let recordDate = startDate.addingTimeInterval(TimeInterval(second))
 			
-			guard let instantData: AGAccumulatorRawInstantData = acummulator.rawData.data[second] else {
+            /// The data for this timestamp or second in the recorded activity
+			guard let secondData: AGAccumulatorRawInstantData = acummulator.rawData.data[second] else {
 				continue
 			}
 			
 			let arrayData = acummulator.rawData.arrayData[second]
 			
 			// if not paused and now paused then
-			if !paused && instantData.paused {
+			if !paused && secondData.paused {
 				// add a pause event
 				fitWriter.appendMessage(message: createEventMessage(date: recordDate, eventType: .stop))
 			}
 			// if paused and now not paused, then
-			else if paused && !instantData.paused {
+			else if paused && !secondData.paused {
 				// add a resume event
 				fitWriter.appendMessage(message: createEventMessage(date: recordDate, eventType: .start))
 			}
 			
-			paused = instantData.paused
+			paused = secondData.paused
 			
 			if !paused {
 				// Add record messages
-				fitWriter.appendMessage(message: createRecordMessage(date: recordDate,
-																	 rawData: instantData,
-																	arrayData: arrayData))
+                fitWriter.appendMessage(message: createRecordMessage(date: recordDate,
+                                                                     rawData: secondData,
+                                                                     arrayData: arrayData))
 			}
 				
 			lastRecordDate = recordDate
@@ -225,54 +226,9 @@ public class AGAcummulatorConverter {
 										  speed: speedMeasurement,
 										  gpsAccuracy: gpsAccuracyMeasurement)
 
-		// just check developer fields for this message
-		let fields = fieldDescriptionMessages.fields(for: RecordMessage.globalMessageNumber())
-		for field in fields {
-			
-			var value: Any? = nil
-			
-			switch field.definitionNumber {
-			case AGDeveloperData.RadarRangeFiledId:
-				if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
-					var tempValue: [Int16] = doubles.map { Int16($0) } // convert to array of correct units and UInt16 as stored.
-					while tempValue.count < 8 { tempValue.append(Int16(0)) }
-					value = tempValue
-				}
-				else {
-					let tempValue: [Int16] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-					value = tempValue
-				}
-			case AGDeveloperData.RadarSpeedFiledId:
-				if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
-					var tempValue: [UInt8] = doubles.map { UInt8($0) } // convert to array of correct units and UInt8 as stored.
-					while tempValue.count < 8 { tempValue.append(UInt8(0)) }
-					value = tempValue
-				}
-				else {
-					let tempValue: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-					value = tempValue
-				}
-			case AGDeveloperData.RadarCountFiledId:
-				if let doubleValue = rawData.value(for: .radarTargetTotalCount) {
-					value = UInt16(doubleValue)
-				}
-			case AGDeveloperData.RadarPassingSpeedFiledId:
-				if let doubleValue = rawData.value(for: .radarPassingSpeed) {
-					value = UInt8(doubleValue)
-				}
-			case AGDeveloperData.RadarPassingSpeedAbsFiledId:
-				if let doubleValue = rawData.value(for: .radarPassingSpeedAbs) {
-					value = UInt8(doubleValue)
-				}
-					
-			default:
-				break
-			}
-			
-			if let value {
-				recordMessage.addDeveloperData(value: value, fieldDescription: field)
-			}
-		}
+        recordMessage.encodeDevDataFields(fieldDescriptionMessages: fieldDescriptionMessages,
+                                          rawData: rawData,
+                                          arrayData: arrayData)
 		
 		return recordMessage
 	}
