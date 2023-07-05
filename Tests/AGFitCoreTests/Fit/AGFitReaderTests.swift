@@ -200,7 +200,7 @@ final class AGFitReaderTests: XCTestCase {
 		let anotherMessage = try XCTUnwrap(recordMessages[24])
 		
 		// radar ranges
-		var rangesDataField = anotherMessage.developerValues[0]
+		let rangesDataField = anotherMessage.developerValues[0]
 		XCTAssertEqual(rangesDataField.fieldName, "radar_ranges")
 		
 		let rangesValues = try XCTUnwrap(rangesDataField.value as? [Int16])
@@ -231,36 +231,36 @@ final class AGFitReaderTests: XCTestCase {
 		for message in recordMessages {
 			
 			
-			var rangesDataField = message.developerValues[0]
-			let rangesName = try XCTUnwrap(rangesDataField.fieldName)
+			let rangesDataField = message.developerValues[0]
+			_ = try XCTUnwrap(rangesDataField.fieldName)
 			let rangesValues = try XCTUnwrap(rangesDataField.value as? [Int16])
 			XCTAssertEqual(rangesValues.count, 8)
 			
 			//print("\(rangesName): \(rangesValues)")
 			
-			var speedDataField = message.developerValues[1]
+			let speedDataField = message.developerValues[1]
 			let speedName = try XCTUnwrap(speedDataField.fieldName)
 			let speedValues = try XCTUnwrap(speedDataField.value as? [UInt8])
 			XCTAssertEqual(speedValues.count, 8)
 			
 			print("\(speedName): \(speedValues)")
 
-			var passingSpeedDataField = message.developerValues[2]
-			let passingSpeedName = try XCTUnwrap(passingSpeedDataField.fieldName)
-			let passingSpeed = try XCTUnwrap(passingSpeedDataField.value as? Double)
+			let passingSpeedDataField = message.developerValues[2]
+			_ = try XCTUnwrap(passingSpeedDataField.fieldName)
+			_ = try XCTUnwrap(passingSpeedDataField.value as? Double)
 
 			//print("\(passingSpeedName): \(passingSpeed)")
 
 			
-			var passingSpeedAbsDataField = message.developerValues[3]
-			let passingSpeedAbsName = try XCTUnwrap(passingSpeedAbsDataField.fieldName)
-			let passingSpeedAbs = try XCTUnwrap(passingSpeedAbsDataField.value as? Double)
+			let passingSpeedAbsDataField = message.developerValues[3]
+			_ = try XCTUnwrap(passingSpeedAbsDataField.fieldName)
+			_ = try XCTUnwrap(passingSpeedAbsDataField.value as? Double)
 			
 			//print("\(passingSpeedAbsName): \(passingSpeedAbs)")
 
-			var radarCurrentDataField = message.developerValues[4]
-			let radarCurrentName = try XCTUnwrap(radarCurrentDataField.fieldName)
-			let radarCurrent = try XCTUnwrap(radarCurrentDataField.value as? Double)
+			let radarCurrentDataField = message.developerValues[4]
+			_ = try XCTUnwrap(radarCurrentDataField.fieldName)
+			_ = try XCTUnwrap(radarCurrentDataField.value as? Double)
 			
 			//print("\(radarCurrentName): \(radarCurrent)")
 
