@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import AGCore
 import FitDataProtocol
 import AntMessageProtocol
@@ -22,6 +23,8 @@ public class AGFitAcummulatorConverter {
 	private let fitWriter: AGFitWriter
 	private let config: AGFitConverterConfig
 	
+	private var logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitAcummulatorConverter")
+
 	private var fieldDescriptionMessages: [FieldDescriptionMessage] = []
     
     /// Converts accumulated data into fit messages
@@ -40,9 +43,11 @@ public class AGFitAcummulatorConverter {
 	/// Processes all accumulated and raw data and generates fit messages into the the fit writer ready for saving to fit file.
 	/// - Returns: Nil or an error
 	public func convertToFitMessages() async -> AGFitConverterError? {
-	
+			
 		let startDate = acummulator.startDate ?? Date()
-		
+	
+		logger.info("Started convert to Fit startDate=\(startDate, privacy: .public)")
+
 		// Add a file Id message.
 		fitWriter.appendMessage(message: createFileIdMessage(name: config.name, date: startDate))
 		
@@ -52,6 +57,8 @@ public class AGFitAcummulatorConverter {
 			// Add developer data id messages
 			fitWriter.appendDeveloperDataId(developerDataID: createDeveloperDataIdMessage(devDataIndex: devData.developerDataIndex))
 			
+			logger.info("Adding \(devData.fields.count, privacy: .public) dev data fields.")
+
 			// Add Field description messages
 			for devField in devData.fields {
 				let fieldDescMessage = createFieldDescriptionMessage(
@@ -94,23 +101,26 @@ public class AGFitAcummulatorConverter {
 															   date: lastRecordDate, allSessions:
 																acummulator.sessionData))
 		
+		logger.info("Completed convert to Fit.")
 		return nil
 	}
 	
-    /// Interates over all accumulated raw data and creates a record message at 1Hz.
-    /// - Parameter startDate: the activity start date.
-    /// - Returns: Last record date.
+	/// Interates over all accumulated raw data and creates a record message at 1Hz.
+	/// - Parameter startDate: the activity start date.
+	/// - Returns: Last record date.
 	internal func createRecordMessages(startDate: Date) -> Date {
 	
 		var paused = false
 		
 		var lastRecordDate = startDate
 		
+		logger.info("Generating \(self.acummulator.rawData.data.keys.count, privacy: .public) messages.")
+		
 		for second in acummulator.rawData.data.keys.sorted() {
 			
 			let recordDate = startDate.addingTimeInterval(TimeInterval(second))
 			
-            /// The data for this timestamp or second in the recorded activity
+			/// The data for this timestamp or second in the recorded activity
 			guard let secondData: AGAccumulatorRawInstantData = acummulator.rawData.data[second] else {
 				continue
 			}
@@ -132,9 +142,9 @@ public class AGFitAcummulatorConverter {
 			
 			if !paused {
 				// Add record messages
-                fitWriter.appendMessage(message: createRecordMessage(date: recordDate,
-                                                                     rawData: secondData,
-                                                                     arrayData: arrayData))
+				fitWriter.appendMessage(message: createRecordMessage(date: recordDate,
+																	 rawData: secondData,
+																	 arrayData: arrayData))
 			}
 				
 			lastRecordDate = recordDate
@@ -234,9 +244,9 @@ public class AGFitAcummulatorConverter {
 										  speed: speedMeasurement,
 										  gpsAccuracy: gpsAccuracyMeasurement)
 
-        recordMessage.encodeDevDataFields(fieldDescriptionMessages: fieldDescriptionMessages,
-                                          rawData: rawData,
-                                          arrayData: arrayData)
+		recordMessage.encodeDevDataFields(fieldDescriptionMessages: fieldDescriptionMessages,
+										  rawData: rawData,
+										  arrayData: arrayData)
 		
 		return recordMessage
 	}
