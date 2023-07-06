@@ -27,7 +27,7 @@ public class AGFitReader {
 	
 	private var messageDelegate: AGFitReaderProtocol?
 	
-	let log = Logger(subsystem: "com.antokne.fitcore", category: "AGFitReader")
+	let logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitReader")
 
 	private(set) public var messages: [FitMessage] = []
 	
@@ -50,13 +50,13 @@ public class AGFitReader {
 		
 		// TODO: Return and Error.
 		
-		log.debug("About to start read file")
+		logger.debug("About to start read file")
 		guard let fileData = try? Data(contentsOf: url) else {
-			log.error("Failed to open file \(self.url)")
+			logger.error("Failed to open file \(self.url)")
 			return
 		}
 		
-		log.debug("About to start decoding file")
+		logger.debug("About to start decoding file")
 		
 		do {
 			try fitDecoder.decode(data: fileData, messages: messageTypes) { [weak self] message in
@@ -70,9 +70,9 @@ public class AGFitReader {
 		}
 		
 		catch {
-			log.debug("Failed to decode")
+			logger.debug("Failed to decode")
 		}
 		
-		log.debug("decoding file finished")
+		logger.debug("decoding file finished")
 	}
 }

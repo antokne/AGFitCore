@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 import FitDataProtocol
 
 public enum AGFitWriterError: Error {
@@ -29,6 +30,8 @@ public class AGFitWriter {
 	private(set) public var developerDataIDs: [DeveloperDataIdMessage] = []
 	private(set) public var fieldDescriptions: [FieldDescriptionMessage] = []
 	
+	let logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitWriter")
+
 	public init(fileURL: URL) {
 		self.fileURL = fileURL
 	}
@@ -64,6 +67,7 @@ public class AGFitWriter {
 	
 	public func write() -> AGFitWriterError? {
 		
+		logger.info("Start write")
 		let encoder = FitFileEncoder(dataValidityStrategy: .none)
 		
 		var writeMessages: [FitMessage] = []
@@ -79,7 +83,7 @@ public class AGFitWriter {
 					writeMessages.append(message)
 				}
 				else {
-					print("Got a nil lap message time stamp!!!")
+					logger.warning("Got a nil lap message time stamp!!!")
 				}
 				
 			default:
@@ -102,13 +106,15 @@ public class AGFitWriter {
 				try data.write(to: fileURL)
 			}
 			catch {
-				print("failed to save to file \(error)")
+				logger.fault("failed to save to file \(error, privacy: .public)")
 			}
 		case .failure(let error):
-			print("dam failed \(error)")
+			logger.fault("dam encoding failed \(error, privacy: .public)")
 			return AGFitWriterError.FailedToWriteFile(error: error)
 		}
 		
+		logger.info("write completed")
+
 		return nil
 		
 	}
