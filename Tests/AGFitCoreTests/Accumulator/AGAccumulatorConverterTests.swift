@@ -353,12 +353,18 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let radarRanges = AGDataTypeArrayValue(type: .radarRanges, values: [1,2,3,4,5,6,7,8])
 		let radarSpeeds = AGDataTypeArrayValue(type: .radarSpeeds, values: [5,5,5,5,5,5,5,5])
 
+		let radarRangesEmpty = AGDataTypeArrayValue(type: .radarRanges, values: [])
+		let radarSpeedsEmpty = AGDataTypeArrayValue(type: .radarSpeeds, values: [])
 		
 		try accumulator.accumulate(date: date.plus(1), value: 1, type: .speed)
 		try accumulator.accumulate(date: date.plus(1), value: 0, type: .radarStatus)
-
+		try accumulator.accumulate(date: date.plus(1), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: date.plus(1), arrayValue: radarSpeedsEmpty)
+		
 		try accumulator.accumulate(date: date.plus(2), value: 1, type: .speed)
 		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarStatus)
+		try accumulator.accumulate(date: date.plus(2), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: date.plus(2), arrayValue: radarSpeedsEmpty)
 
 		try accumulator.accumulate(date: date.plus(3), value: 1, type: .speed)
 		try accumulator.accumulate(date: date.plus(3), arrayValue: radarRanges)
@@ -370,7 +376,9 @@ final class AGAccumulatorConverterTests: XCTestCase {
 
 		try accumulator.accumulate(date: date.plus(5), value: 1, type: .speed)
 		try accumulator.accumulate(date: date.plus(5), value: 0, type: .radarStatus)
-		
+		try accumulator.accumulate(date: date.plus(5), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: date.plus(5), arrayValue: radarSpeedsEmpty)
+
 		accumulator.event(event: .stop, at: date)
 
 		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
@@ -400,19 +408,18 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		let firstRecordMessage = try XCTUnwrap(recordMessages.first)
 		
-		
 		var devField = firstRecordMessage.developerValues[0]
 		XCTAssertEqual(devField.fieldName, "radar_ranges")
-		let notConnectedValues = try XCTUnwrap(devField.value as? [Int16])
+		var notConnectedValues = try XCTUnwrap(devField.value as? [Int16])
 		let compareValues: [Int16] = [255, 255, 255, 255, 255, 255, 255, 255]
 		XCTAssertEqual(notConnectedValues, compareValues)
 		
 		devField = firstRecordMessage.developerValues[1]
 		XCTAssertEqual(devField.fieldName, "radar_speeds")
-		let speedsNotConnectedValues = try XCTUnwrap(devField.value as? [UInt8])
+		var speedsNotConnectedValues = try XCTUnwrap(devField.value as? [UInt8])
 		let speedsCompareValues: [UInt8] = [255, 255, 255, 255, 255, 255, 255, 255]
 		XCTAssertEqual(speedsNotConnectedValues, speedsCompareValues)
-		
+	
 		
 		let secondRecordMessage = try XCTUnwrap(recordMessages[1])
 
@@ -428,6 +435,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let noSpeedValuesCompare: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0]
 		XCTAssertEqual(noSpeedValues, noSpeedValuesCompare)
 		
+		
 		let thirdRecordMessage = try XCTUnwrap(recordMessages[2])
 		
 		devField = thirdRecordMessage.developerValues[0]
@@ -441,6 +449,18 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let speedValues = try XCTUnwrap(devField.value as? [UInt8])
 		let speedValuesCompare: [UInt8] = [5,5,5,5,5,5,5,5]
 		XCTAssertEqual(speedValues, speedValuesCompare)
+		
+		let fifthRecordMessage = try XCTUnwrap(recordMessages[4])
+		
+		devField = fifthRecordMessage.developerValues[0]
+		XCTAssertEqual(devField.fieldName, "radar_ranges")
+		notConnectedValues = try XCTUnwrap(devField.value as? [Int16])
+		XCTAssertEqual(notConnectedValues, compareValues)
+		
+		devField = fifthRecordMessage.developerValues[1]
+		XCTAssertEqual(devField.fieldName, "radar_speeds")
+		speedsNotConnectedValues = try XCTUnwrap(devField.value as? [UInt8])
+		XCTAssertEqual(speedsNotConnectedValues, speedsCompareValues)
 		
 		try? FileManager.default.removeItem(at: url)
 

@@ -270,4 +270,73 @@ final class AGFitReaderTests: XCTestCase {
 		
 	}
 	
+	
+	func testRadarDevDataFieldsDisconnected() throws {
+		
+		guard let fitFile = URL.fitURL(name: "radar-disconnected", ext: "fit") else {
+			XCTFail("No fit file")
+			return
+		}
+		
+		XCTAssertTrue(FileManager.default.fileExists(atPath: fitFile.path))
+		
+		let fitFileReader = AGFitReader(fileUrl: fitFile)
+		
+		fitFileReader.read()
+		
+		let devDataMessages = fitFileReader.messages.filter { $0.developerValues.count > 0 }
+		XCTAssertTrue(!devDataMessages.isEmpty)
+		
+		let recordMessages = try XCTUnwrap(devDataMessages.filter { $0 as? RecordMessage != nil } as? [RecordMessage])
+		XCTAssertTrue(!recordMessages.isEmpty)
+		
+		
+		for message in recordMessages {
+			
+			
+			let rangesDataField = message.developerValues[0]
+			let rangesName = try XCTUnwrap(rangesDataField.fieldName)
+			let rangesValues = try XCTUnwrap(rangesDataField.value as? [Int16])
+			XCTAssertEqual(rangesValues.count, 8)
+			
+			print("\(rangesName): \(rangesValues)")
+			
+			let speedDataField = message.developerValues[1]
+			let speedName = try XCTUnwrap(speedDataField.fieldName)
+			let speedValues = try XCTUnwrap(speedDataField.value as? [UInt8])
+			XCTAssertEqual(speedValues.count, 8)
+			
+			print("\(speedName): \(speedValues)")
+			
+			if message.developerValues.count == 2 {
+				XCTAssertEqual(rangesValues, message.radarDisconnectedRanges)
+				XCTAssertEqual(speedValues, message.radarDisconnectedSpeeds)
+			}
+			
+			if message.developerValues.count == 5 {
+				
+				let passingSpeedDataField = message.developerValues[2]
+				let passingSpeedName = try XCTUnwrap(passingSpeedDataField.fieldName)
+				let passingSpeed = try XCTUnwrap(passingSpeedDataField.value as? Double)
+				
+				print("\(passingSpeedName): \(passingSpeed)")
+
+				let passingSpeedAbsDataField = message.developerValues[3]
+				let passingSpeedAbsName = try XCTUnwrap(passingSpeedAbsDataField.fieldName)
+				let passingSpeedAbs = try XCTUnwrap(passingSpeedAbsDataField.value as? Double)
+				
+				print("\(passingSpeedAbsName): \(passingSpeedAbs)")
+				
+				let radarCurrentDataField = message.developerValues[4]
+				let radarCurrentName = try XCTUnwrap(radarCurrentDataField.fieldName)
+				let radarCurrent = try XCTUnwrap(radarCurrentDataField.value as? Double)
+				
+				print("\(radarCurrentName): \(radarCurrent)")
+			}
+		}
+		
+		
+		
+	}
+	
 }
