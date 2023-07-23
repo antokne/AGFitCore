@@ -279,12 +279,11 @@ public class AGFitAcummulatorConverter {
 		// event = lap
 		let event = Event.lap
 		
-		// total lap time (paused + elapsed)
-		let totalTimeS = lapData.totalTimeS
-		let totalTimerTime: Measurement<UnitDuration> = Measurement(value: totalTimeS, unit: .seconds)
+		// total lap time
+		let totalTimerTime: Measurement<UnitDuration> = Measurement(value: lapData.durationS, unit: .seconds)
 		
-		// total elaspsed time
-		let totalElapsedTime: Measurement<UnitDuration> = Measurement(value: lapData.durationS, unit: .seconds)
+		// total elaspsed time (paused + elapsed)
+		let totalElapsedTime: Measurement<UnitDuration> = Measurement(value: lapData.totalTimeS, unit: .seconds)
 		
 		// total distance
 		var totalDistanceMeasurement: Measurement<UnitLength>? = nil
@@ -355,12 +354,11 @@ public class AGFitAcummulatorConverter {
 		// event = session
 		let event = Event.session
 
-		// total session time (paused + elapsed)
-		let totalTimeS = sessionData.totalTimeS
-		let totalSessionTime: Measurement<UnitDuration> = Measurement(value: totalTimeS, unit: .seconds)
+		// total session time
+		let totalSessionTime: Measurement<UnitDuration> = Measurement(value: sessionData.durationS, unit: .seconds)
 		
-		// total elaspsed time
-		let totalElapsedTime: Measurement<UnitDuration> = Measurement(value: sessionData.durationS, unit: .seconds)
+		// total elaspsed time (paused + elapsed)
+		let totalElapsedTime: Measurement<UnitDuration> = Measurement(value: sessionData.totalTimeS, unit: .seconds)
 		
 		// avg speed
 		var averageSpeedMeasurement: Measurement<UnitSpeed>? = nil
