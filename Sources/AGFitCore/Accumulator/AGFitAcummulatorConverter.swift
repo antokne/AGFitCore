@@ -294,7 +294,7 @@ public class AGFitAcummulatorConverter {
 
 		// avg speed
 		var averageSpeedMeasurement: Measurement<UnitSpeed>? = nil
-		if let avgSpeed = lapData.value(for: .speed, avgType: .average) {
+		if let avgSpeed = lapData.value(for: .distance, avgType: .accumulationOverTime) {
 			averageSpeedMeasurement = Measurement(value: avgSpeed, unit: .metersPerSecond)
 		}
 		
@@ -364,7 +364,7 @@ public class AGFitAcummulatorConverter {
 		
 		// avg speed
 		var averageSpeedMeasurement: Measurement<UnitSpeed>? = nil
-		if let avgSpeed = sessionData.value(for: .speed, avgType: .average) {
+		if let avgSpeed = sessionData.value(for: .distance, avgType: .accumulationOverTime) {
 			averageSpeedMeasurement = Measurement(value: avgSpeed, unit: .metersPerSecond)
 		}
 		
