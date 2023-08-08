@@ -63,25 +63,25 @@ public struct AGFitConverterConfig {
 extension AGFitDeveloperData {
 	
     /// Field id for radar ranges
-	static var RadarRangeFieldId: UInt8 = 0
+	public static var RadarRangeFieldId: UInt8 = 0
     
     /// Field id
-    static var RadarSpeedFieldId: UInt8 = 1
+	public static var RadarSpeedFieldId: UInt8 = 1
 
     /// Field id current radar count
-	static var RadarCountFieldId: UInt8 = 2
+	public static var RadarCountFieldId: UInt8 = 2
 
     /// Field id for count in a session
-	static var RadarCountSessionFieldId: UInt8 = 3
+	public static var RadarCountSessionFieldId: UInt8 = 3
 
     /// Field id for count in current lap
-	static var RadarCountLapFieldId: UInt8 = 4
+	public static var RadarCountLapFieldId: UInt8 = 4
 
     /// Field id for radar passing speed relative to rider
-	static var RadarPassingSpeedFieldId: UInt8 = 5
+	public static var RadarPassingSpeedFieldId: UInt8 = 5
 
     /// Field id for radar passing speed absolute
-	static var RadarPassingSpeedAbsFieldId: UInt8 = 6
+	public static var RadarPassingSpeedAbsFieldId: UInt8 = 6
     
     /// Generates a list of developer data fields to encode into messages for the MyBikeTraffic website.
     /// see https://github.com/kartoone/mybiketraffic/blob/master/source/MyBikeTrafficFitContributions.mc

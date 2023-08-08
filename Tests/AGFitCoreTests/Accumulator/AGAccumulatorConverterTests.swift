@@ -234,8 +234,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let lapMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? LapMessage) != nil }) as? LapMessage)
 		timeInterval = try XCTUnwrap(lapMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
 		XCTAssertEqual(lastRecordMessageDate.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
-		XCTAssertEqual(lapMessage.totalTimerTime?.value, 15)
-		XCTAssertEqual(lapMessage.totalElapsedTime?.value, 10)
+		XCTAssertEqual(lapMessage.totalTimerTime?.value, 10)
+		XCTAssertEqual(lapMessage.totalElapsedTime?.value, 15)
 		XCTAssertEqual(lapMessage.totalDistance?.value, 10)
 		XCTAssertEqual(lapMessage.eventType, EventType.stop)
 		XCTAssertEqual(lapMessage.averageSpeed?.value, 1)
@@ -246,8 +246,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let sessionMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? SessionMessage) != nil }) as? SessionMessage)
 		timeInterval = try XCTUnwrap(sessionMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
 		XCTAssertEqual(lastRecordMessageDate.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
-		XCTAssertEqual(sessionMessage.totalTimerTime?.value, 15)
-		XCTAssertEqual(sessionMessage.totalElapsedTime?.value, 10)
+		XCTAssertEqual(sessionMessage.totalTimerTime?.value, 10)
+		XCTAssertEqual(sessionMessage.totalElapsedTime?.value, 15)
 		XCTAssertEqual(sessionMessage.totalDistance?.value, 10)
 		XCTAssertEqual(sessionMessage.sport, Sport.cycling)
 		XCTAssertEqual(sessionMessage.subSport, SubSport.road)
@@ -263,7 +263,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		XCTAssertEqual(activityMessage.numberOfSessions, 1)
 		XCTAssertEqual(activityMessage.activity, Activity.manual)
 		XCTAssertEqual(activityMessage.eventType, EventType.stop)
-		XCTAssertEqual(activityMessage.totalTimerTime?.value, 15)
+		XCTAssertEqual(activityMessage.totalTimerTime?.value, 10)
 	}
 	
 	func testFitMessageGenerationRadarData() async throws {

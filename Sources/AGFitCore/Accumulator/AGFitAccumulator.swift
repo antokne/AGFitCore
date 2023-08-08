@@ -77,11 +77,22 @@ public class AGFitAccumulator: AGAccumulator {
 		
 		switch event.eventType {
 		case .start:
-			self.event(event: .resume, at: recordDate)
+			// Need to handle messages coming from fit. the first start message should start the accumulator.
+			if self.state == .stopped {
+				self.event(event: .start, at: recordDate)
+			}
+			else {
+				self.event(event: .resume, at: recordDate)
+			}
 		case .stop:
+			// This is a pause in disguise
 			self.event(event: .pause, at: recordDate)
 			break
+		case .stopAll:
+			// The actual stop.
+			self.event(event: .stop, at: recordDate)
 		default:
+			print("event not handled \(event)")
 			break
 		}
 	}

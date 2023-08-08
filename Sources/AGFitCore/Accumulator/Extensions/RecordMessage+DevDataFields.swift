@@ -8,22 +8,23 @@
 import Foundation
 import FitDataProtocol
 import AGCore
+import CoreLocation
 
 extension RecordMessage {
 	
-	var radarDisconnectedRanges: [Int16] {
+	static var radarDisconnectedRanges: [Int16] {
 		[255, 255, 255, 255, 255, 255, 255, 255]
 	}
 	
-	var radarNoRanges: [Int16] {
+	static var radarNoRanges: [Int16] {
 		[0, 0, 0, 0, 0, 0, 0, 0]
 	}
 	
-	var radarDisconnectedSpeeds: [UInt8] {
+	static var radarDisconnectedSpeeds: [UInt8] {
 		[255, 255, 255, 255, 255, 255, 255, 255]
 	}
 	
-	var radarNoSpeeds: [UInt8] {
+	static var radarNoSpeeds: [UInt8] {
 		[0, 0, 0, 0, 0, 0, 0, 0]
 	}
 	
@@ -41,7 +42,7 @@ extension RecordMessage {
 			case AGFitDeveloperData.RadarRangeFieldId:
 				// If we have a disconnect status then insert that.
 				if let radarStatus = rawData.value(for: .radarStatus), radarStatus == 0 {
-					value = radarDisconnectedRanges
+					value = RecordMessage.radarDisconnectedRanges
 				}
 				else if let doubles: [Double] = arrayData?.values(for: .radarRanges) {
 					var tempValue: [Int16] = doubles.map { Int16($0) } // convert to array of correct units and UInt16 as stored.
@@ -49,12 +50,12 @@ extension RecordMessage {
 					value = tempValue
 				}
 				else {
-					value = radarNoRanges
+					value = RecordMessage.radarNoRanges
 				}
 			case AGFitDeveloperData.RadarSpeedFieldId:
 				// If we have a disconnect status then insert that.
 				if let radarStatus = rawData.value(for: .radarStatus), radarStatus == 0 {
-					value = radarDisconnectedSpeeds
+					value = RecordMessage.radarDisconnectedSpeeds
 				}
 				else if let doubles: [Double] = arrayData?.values(for: .radarSpeeds) {
 					var tempValue: [UInt8] = doubles.map { UInt8($0) } // convert to array of correct units and UInt8 as stored.
@@ -62,7 +63,7 @@ extension RecordMessage {
 					value = tempValue
 				}
 				else {
-					value = radarNoSpeeds
+					value = RecordMessage.radarNoSpeeds
 				}
 			case AGFitDeveloperData.RadarCountFieldId:
 				if let doubleValue = rawData.value(for: .radarTargetTotalCount) {
@@ -88,4 +89,66 @@ extension RecordMessage {
 		
 	}
 	
+	public var hasRadarValues: Bool {
+		
+		guard developerValues.count == 5 else {
+			return false
+		}
+		
+		let index = Int(AGFitDeveloperData.RadarRangeFieldId)
+		let rangesField = developerValues[index]
+		
+		guard let rangesValues = rangesField.value as? [Int16] else {
+			return false
+		}
+
+		if rangesValues == RecordMessage.radarDisconnectedRanges {
+			return false
+		}
+		if rangesValues == RecordMessage.radarNoRanges {
+			return false
+		}
+		return true
+	}
+	
+	public func radarRangesNonZeroCount() -> Int {
+		
+		guard developerValues.count == 5 else {
+			return 0
+		}
+		
+		let index = Int(AGFitDeveloperData.RadarRangeFieldId)
+		let rangesField = developerValues[index]
+		
+		guard let rangesValues = rangesField.value as? [Int16] else {
+			return 0
+		}
+		
+		let nonZeroValues = rangesValues.compactMap { $0 > 0 ? $0 : nil }
+		return nonZeroValues.count
+	}
+	
+	var location: CLLocationCoordinate2D? {
+		if let lat = position?.latitude?.converted(to: .degrees).value,
+		   let lng = position?.longitude?.converted(to: .degrees).value {
+			return CLLocationCoordinate2D(latitude: lat, longitude: lng)
+		}
+		return nil
+	}
+	
+	func distance(from recordMessage: RecordMessage) -> Double? {
+		
+		guard let location else {
+			return nil
+		}
+		
+		guard let otherlocation = recordMessage.location else {
+			return nil
+		}
+		
+		let thisCLLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
+		let otherCLLocation = CLLocation(latitude: otherlocation.latitude, longitude: otherlocation.longitude)
+		
+		return thisCLLocation.distance(from: otherCLLocation)
+	}
 }

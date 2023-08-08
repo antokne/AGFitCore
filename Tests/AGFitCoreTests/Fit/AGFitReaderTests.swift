@@ -309,8 +309,8 @@ final class AGFitReaderTests: XCTestCase {
 			print("\(speedName): \(speedValues)")
 			
 			if message.developerValues.count == 2 {
-				XCTAssertEqual(rangesValues, message.radarDisconnectedRanges)
-				XCTAssertEqual(speedValues, message.radarDisconnectedSpeeds)
+				XCTAssertEqual(rangesValues, RecordMessage.radarDisconnectedRanges)
+				XCTAssertEqual(speedValues, RecordMessage.radarDisconnectedSpeeds)
 			}
 			
 			if message.developerValues.count == 5 {

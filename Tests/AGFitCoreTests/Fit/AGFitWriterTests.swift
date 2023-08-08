@@ -163,32 +163,12 @@ final class AGFitWriterTests: XCTestCase {
 										 productName: "Bob")
 		let developerDataId = DeveloperDataIdMessage(dataIndex: 0)
 		
-		let radarRangesField = FieldDescriptionMessage(dataIndex: 0,
-													   definitionNumber: 0,
-													   fieldName: "radar_ranges",
-													   baseInfo: BaseTypeData(type: .sint16),
-													   units: nil,
-													   baseUnits: nil,
-													   messageNumber: 20,
-													   fieldNumber: nil)
-		
-		let radarSpeedsField = FieldDescriptionMessage(dataIndex: 0,
-													   definitionNumber: 1,
-													   fieldName: "radar_speeds",
-													   baseInfo: BaseTypeData(type: .uint8),
-													   units: nil,
-													   baseUnits: nil,
-													   messageNumber: 20,
-													   fieldNumber: nil)
-		
-		let radarCurrentField = FieldDescriptionMessage(dataIndex: 0,
-														definitionNumber: 2,
-														fieldName: "radar_current",
-														baseInfo: BaseTypeData(type: .uint16),
-														units: nil,
-														baseUnits: nil,
-														messageNumber: 20,
-														fieldNumber: nil)
+		var fields = RecordMessage.fieldDesciptionMessages()
+		let radarRangesField = fields[0]
+		let radarSpeedsField = fields[1]
+		let radarCurrentField = fields[2]
+		let passingSpeedField = fields[3]
+		let passingSpeedAbsField = fields[4]
 		
 		let radarTotalField = FieldDescriptionMessage(dataIndex: 0,
 													  definitionNumber: 3,
@@ -207,26 +187,8 @@ final class AGFitWriterTests: XCTestCase {
 													baseUnits: nil,
 													messageNumber: 19,
 													fieldNumber: nil)
-		
-		let passingSpeedField = FieldDescriptionMessage(dataIndex: 0,
-														definitionNumber: 5,
-														fieldName: "passing_speed",
-														baseInfo: BaseTypeData(type: .uint8),
-														units: nil,
-														baseUnits: nil,
-														messageNumber: 20,
-														fieldNumber: nil)
-		
-		let passingSpeedAbsField = FieldDescriptionMessage(dataIndex: 0,
-														   definitionNumber: 6,
-														   fieldName: "passing_speedabs",
-														   baseInfo: BaseTypeData(type: .uint8),
-														   units: nil,
-														   baseUnits: nil,
-														   messageNumber: 20,
-														   fieldNumber: nil)
-		
-		let fields = [radarRangesField, radarSpeedsField, radarCurrentField, radarTotalField, radarLapField, passingSpeedField, passingSpeedAbsField]
+		fields.append(radarTotalField)
+		fields.append(radarLapField)
 		
 		// -37.773218, 175.287636
 		let lat = Measurement(value: -37.773218, unit: UnitAngle.degrees)
