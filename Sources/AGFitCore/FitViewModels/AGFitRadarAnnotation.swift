@@ -19,8 +19,8 @@ public class AGFitRadarAnnotation: NSObject {
 	
 	let imageColor = #colorLiteral(red: 0.5058823824, green: 0.3372549117, blue: 0.06666667014, alpha: 1)
 	
-	public lazy var image: NSImage? = {
-		NSImage(systemSymbolName: "car.circle", accessibilityDescription: "car.circle")?
+	public lazy var image: AGImage? = {
+		AGImage(systemSymbolName: "car.circle", accessibilityDescription: "car.circle")?
 			.tint(color: imageColor)
 	}()
 }
@@ -42,13 +42,20 @@ extension AGFitRadarAnnotation : MKAnnotation {
 
 
 
-extension NSImage {
-	func tint(color: NSColor) -> NSImage {
-		return NSImage(size: size, flipped: false) { rect -> Bool in
+extension AGImage {
+	func tint(color: AGColor) -> AGImage {
+#if os(macOS)
+
+		return AGImage(size: size, flipped: false) { rect -> Bool in
 			color.set()
 			rect.fill()
-			self.draw(in: rect, from: NSRect(origin: .zero, size: self.size), operation: .destinationIn, fraction: 1.0)
+			self.draw(in: rect, from: AGRect(origin: .zero, size: self.size), operation: .destinationIn, fraction: 1.0)
 			return true
 		}
+#endif
+#if os(iOS)
+		return self.withTintColor(color, renderingMode: .alwaysTemplate)
+#endif
+
 	}
 }
