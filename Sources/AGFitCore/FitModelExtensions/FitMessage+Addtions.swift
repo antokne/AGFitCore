@@ -10,45 +10,6 @@ import Foundation
 import AGCore
 import FitDataProtocol
 
-enum FitMessageType: UInt16 {
-	case fileId = 0			// = FIT_MESG_NUM_FILE_ID
-	case deviceSettings		// = FIT_MESG_NUM_DEVICE_SETTINGS
-	case userProfile		// = FIT_MESG_NUM_USER_PROFILE
-	case hRMProfile			// = FIT_MESG_NUM_HRM_PROFILE
-	case bikeProfile		// = FIT_MESG_NUM_BIKE_PROFILE
-	case zonesTarget		// = FIT_MESG_NUM_ZONES_TARGET
-	case hRZone				// = FIT_MESG_NUM_HR_ZONE
-	case powerZone			// = FIT_MESG_NUM_POWER_ZONE
-	case sport				// = FIT_MESG_NUM_SPORT
-	case goal				// = FIT_MESG_NUM_GOAL
-	case session			// = FIT_MESG_NUM_SESSION
-	case lap				// = FIT_MESG_NUM_LAP
-	case record = 20		// = FIT_MESG_NUM_RECORD
-	case event				// = FIT_MESG_NUM_EVENT
-	case deviceInfo			// = FIT_MESG_NUM_DEVICE_INFO
-	case workout			// = FIT_MESG_NUM_WORKOUT
-	case course				// = FIT_MESG_NUM_COURSE
-	case coursePoint		// = FIT_MESG_NUM_COURSE_POINT
-	case totals				// = FIT_MESG_NUM_TOTALS
-	case activity			// = FIT_MESG_NUM_ACTIVITY
-	case length				// = FIT_MESG_NUM_LENGTH
-	case segmentLap			// = FIT_MESG_NUM_SEGMENT_LAP
-	case segmentId			// = FIT_MESG_NUM_SEGMENT_ID
-	case segmentLeaderboardEntry// = FIT_MESG_NUM_SEGMENT_LEADERBOARD_ENTRY
-	case fieldDescription	// = FIT_MESG_NUM_FIELD_DESCRIPTION
-	case developerDataId	// = FIT_MESG_NUM_DEVELOPER_DATA_ID
-	
-	// Wahoo Custom messages
-	case wahooPausedRecord// = FIT_MESG_NUM_WAHOO_PAUSED_RECORD
-	case wahooMesgId// = FIT_MESG_NUM_WAHOO_MESG_ID
-	case wahooSegmentLeaderboardEntry// = FIT_MESG_NUM_WAHOO_SEGMENT_LEADERBOARD_ENTRY
-	
-	// ANT
-	case antRx// = FIT_MESG_NUM_ANT_RX
-	
-	// HR Data
-	case heartRateVariability// = FIT_MESG_NUM_HRV
-}
 
 public struct NameValueUnitType {
 	var name: String
