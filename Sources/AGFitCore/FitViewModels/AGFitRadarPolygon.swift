@@ -54,7 +54,7 @@ public class AGFitRadarPolygon: NSObject {
 	}
 
 	public var strokeColor: AGColor {
-		AGColor(red: 1.0, green: 0.1, blue: 0.1, alpha: CGFloat(maxCarCount) * 0.1666)
+		AGColor(red: 1.0, green: 0.1, blue: 0.1, alpha: 1)
 	}
 	
 	public var lineWidth: Double {
@@ -76,3 +76,4 @@ extension AGFitRadarPolygon: MKOverlay {
 	
 	
 }
+

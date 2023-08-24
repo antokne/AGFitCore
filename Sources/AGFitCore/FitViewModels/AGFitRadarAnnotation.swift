@@ -20,15 +20,22 @@ public class AGFitRadarAnnotation: NSObject {
 	let imageColor = #colorLiteral(red: 0.5058823824, green: 0.3372549117, blue: 0.06666667014, alpha: 1)
 	
 	public lazy var image: AGImage? = {
-		AGImage(systemSymbolName: "car.circle", accessibilityDescription: "car.circle")?
+		AGImage(systemSymbolName: "car", accessibilityDescription: "car.circle")?
 			.tint(color: imageColor)
 	}()
+	
+	var radarTitle: String {
+		recordMessage.radarTitle()
+	}
+	var radarDescription: String? {
+		recordMessage.radarDescription()
+	}
 }
 
 
 extension AGFitRadarAnnotation : MKAnnotation {
 	
-	public var coordinate: CLLocationCoordinate2D {
+	@objc dynamic public var coordinate: CLLocationCoordinate2D {
 		if let lat = recordMessage.position?.latitude?.converted(to: .degrees).value,
 		   let lng = recordMessage.position?.longitude?.converted(to: .degrees).value {
 			return CLLocationCoordinate2D(latitude: lat, longitude: lng)
@@ -36,7 +43,15 @@ extension AGFitRadarAnnotation : MKAnnotation {
 		return CLLocationCoordinate2D()
 	}
 	
+	public var title: String? {
+		"Vehicles"
+	}
 	
+	public var subtitle: String? {
+		[recordMessage.radarTitle(), recordMessage.radarDescription()]
+			.compactMap { $0 }
+			.joined()
+	}
 	
 }
 
@@ -58,4 +73,37 @@ extension AGImage {
 #endif
 
 	}
+}
+
+
+public class AGFitRadarCluster: MKAnnotationView {
+	
+	public override func prepareForDisplay() {
+		super.prepareForDisplay()
+		
+		guard let cluster = annotation as? MKClusterAnnotation else {
+			return
+		}
+		
+		let totalRadarPoints = cluster.memberAnnotations.count
+		if totalRadarPoints > 1 {
+			image = NSImage(systemSymbolName: "car.2", accessibilityDescription: nil)
+		}
+		else {
+			image = NSImage(systemSymbolName: "car", accessibilityDescription: nil)
+		}
+		
+		guard let first = cluster.memberAnnotations.first as? AGFitRadarAnnotation else {
+			return
+		}
+		
+		cluster.title = "Vehicles"
+		let radarAnnotations = cluster.memberAnnotations as? [AGFitRadarAnnotation]
+		cluster.subtitle = radarAnnotations?.reduce(first.radarTitle) { ($0) + ($1.radarDescription ?? "") }
+		
+		
+	}
+	
+	
+
 }
