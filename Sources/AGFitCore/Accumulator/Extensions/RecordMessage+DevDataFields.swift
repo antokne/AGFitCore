@@ -12,21 +12,13 @@ import CoreLocation
 
 extension RecordMessage {
 	
-	static var radarDisconnectedRanges: [Int16] {
-		[255, 255, 255, 255, 255, 255, 255, 255]
-	}
+	static var radarDisconnectedRanges: [Int16] = [255, 255, 255, 255, 255, 255, 255, 255]
 	
-	static var radarNoRanges: [Int16] {
-		[0, 0, 0, 0, 0, 0, 0, 0]
-	}
+	static var radarNoRanges: [Int16] = [0, 0, 0, 0, 0, 0, 0, 0]
 	
-	static var radarDisconnectedSpeeds: [UInt8] {
-		[255, 255, 255, 255, 255, 255, 255, 255]
-	}
+	static var radarDisconnectedSpeeds: [UInt8] = [255, 255, 255, 255, 255, 255, 255, 255]
 	
-	static var radarNoSpeeds: [UInt8] {
-		[0, 0, 0, 0, 0, 0, 0, 0]
-	}
+	static var radarNoSpeeds: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0]
 	
 	func encodeDevDataFields(fieldDescriptionMessages: [FieldDescriptionMessage],
 							 rawData: AGAccumulatorRawInstantData,
