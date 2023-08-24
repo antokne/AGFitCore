@@ -87,10 +87,10 @@ public class AGFitRadarCluster: MKAnnotationView {
 		
 		let totalRadarPoints = cluster.memberAnnotations.count
 		if totalRadarPoints > 1 {
-			image = NSImage(systemSymbolName: "car.2", accessibilityDescription: nil)
+			image = AGImage(systemSymbolName: "car.2", accessibilityDescription: nil)
 		}
 		else {
-			image = NSImage(systemSymbolName: "car", accessibilityDescription: nil)
+			image = AGImage(systemSymbolName: "car", accessibilityDescription: nil)
 		}
 		
 		guard let first = cluster.memberAnnotations.first as? AGFitRadarAnnotation else {
@@ -98,9 +98,14 @@ public class AGFitRadarCluster: MKAnnotationView {
 		}
 		
 		cluster.title = "Vehicles"
-		let radarAnnotations = cluster.memberAnnotations as? [AGFitRadarAnnotation]
-		cluster.subtitle = radarAnnotations?.reduce(first.radarTitle) { ($0) + ($1.radarDescription ?? "") }
 		
+		if totalRadarPoints > 10 {
+			cluster.subtitle = "\(totalRadarPoints) targets."
+		}
+		else {
+			let radarAnnotations = cluster.memberAnnotations as? [AGFitRadarAnnotation]
+			cluster.subtitle = radarAnnotations?.reduce(first.radarTitle) { ($0) + ($1.radarDescription ?? "") }
+		}
 		
 	}
 	
