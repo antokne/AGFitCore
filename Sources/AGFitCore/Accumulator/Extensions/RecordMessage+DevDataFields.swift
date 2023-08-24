@@ -128,6 +128,43 @@ extension RecordMessage {
 		return nonZeroValues.count
 	}
 	
+	
+	public func radarTitle() -> String {
+		"Range(\(AGDataType.horizontalAccuracy.units.symbol))\tSpeed(\(AGDataType.speed.displayedDimension.symbol))"
+	}
+	
+	public func radarDescription() -> String? {
+	
+		guard developerValues.count == 5 else {
+			return nil
+		}
+		
+		let rangesField = developerValues[Int(AGFitDeveloperData.RadarRangeFieldId)]
+		let speedsField = developerValues[Int(AGFitDeveloperData.RadarSpeedFieldId)]
+	
+		guard let rangesValues = rangesField.value as? [Int16] else {
+			return nil
+		}
+		
+		guard let speedValues = speedsField.value as? [UInt8] else {
+			return nil
+		}
+
+		var result = ""
+		for index in 0..<rangesValues.count {
+			if rangesValues[index] == 0 {
+				continue
+			}
+			if index < rangesValues.count {
+				result += "\n"
+			}
+			result += "\(AGDataType.horizontalAccuracy.format(value: Double(rangesValues[index])))\t\t\(AGDataType.speed.format(value: Double(speedValues[index])))"
+		}
+		
+		return result
+	}
+	
+	
 	var location: CLLocationCoordinate2D? {
 		if let lat = position?.latitude?.converted(to: .degrees).value,
 		   let lng = position?.longitude?.converted(to: .degrees).value {
