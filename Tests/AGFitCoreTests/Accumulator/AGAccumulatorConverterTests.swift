@@ -60,9 +60,9 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
-		let date = Date()
-		accumulator.event(event: .start, at: date)
-		accumulator.event(event: .stop, at: date)
+		let dateGmt = Date()
+		accumulator.event(event: .start, at: dateGmt)
+		accumulator.event(event: .stop, at: dateGmt)
 		
 		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
@@ -74,10 +74,12 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		XCTAssertEqual(fitWriter.messages.count, 7)
 		
+		let date = try XCTUnwrap(Calendar.gmt.dateBySettingTimeFrom(timeZone: TimeZone.current, of: dateGmt))
+		
 		// File Id message
 		let fileIdMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? FileIdMessage) != nil }) as? FileIdMessage)
 		var timeInterval = try XCTUnwrap(fileIdMessage.fileCreationDate?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		
 		XCTAssertEqual("Road Cycling", fileIdMessage.productName)
 		XCTAssertEqual(FileType.activity, fileIdMessage.fileType)
@@ -95,19 +97,19 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		// Event Message start
 		var eventMessage = try XCTUnwrap(eventMessages.first)
 		timeInterval = try XCTUnwrap(eventMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(eventMessage.eventType, EventType.start)
 
 		// Event Message stopall
 		eventMessage = try XCTUnwrap(eventMessages.last)
 		timeInterval = try XCTUnwrap(eventMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(eventMessage.eventType, EventType.stopAll)
 		
 		// Lap message
 		let lapMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? LapMessage) != nil }) as? LapMessage)
 		timeInterval = try XCTUnwrap(lapMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(lapMessage.totalTimerTime?.value, 0)
 		XCTAssertEqual(lapMessage.totalElapsedTime?.value, 0)
 		XCTAssertEqual(lapMessage.eventType, EventType.stop)
@@ -116,7 +118,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		// session message
 		let sessionMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? SessionMessage) != nil }) as? SessionMessage)
 		timeInterval = try XCTUnwrap(sessionMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(sessionMessage.totalTimerTime?.value, 0)
 		XCTAssertEqual(sessionMessage.totalElapsedTime?.value, 0)
 		XCTAssertEqual(sessionMessage.sport, Sport.cycling)
@@ -126,11 +128,14 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		// activity message
 		let activityMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? ActivityMessage) != nil }) as? ActivityMessage)
 		timeInterval = try XCTUnwrap(activityMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		let localTimeInterval = try XCTUnwrap(activityMessage.localTimeStamp?.recordDate?.timeIntervalSinceReferenceDate)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(activityMessage.event, Event.activity)
 		XCTAssertEqual(activityMessage.numberOfSessions, 1)
 		XCTAssertEqual(activityMessage.activity, Activity.manual)
 		XCTAssertEqual(activityMessage.eventType, EventType.stop)
+		let diff = -TimeInterval(TimeZone.current.secondsFromGMT())
+		XCTAssertEqual(timeInterval - localTimeInterval, diff, accuracy: 1)
 	}
 	
 	func testFitMessageGenerationSomeData() async throws {
@@ -141,46 +146,47 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
-		let date = Date()
-		accumulator.event(event: .start, at: date)
+		let dateGmt = Date()
+		let date = try XCTUnwrap(Calendar.gmt.dateBySettingTimeFrom(timeZone: TimeZone.current, of: dateGmt))
+		accumulator.event(event: .start, at: dateGmt)
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .distance)
-		try accumulator.accumulate(date: date.plus(2), value: 2, type: .distance)
-		try accumulator.accumulate(date: date.plus(3), value: 3, type: .distance)
-		try accumulator.accumulate(date: date.plus(4), value: 4, type: .distance)
-		try accumulator.accumulate(date: date.plus(5), value: 5, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 2, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 3, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 4, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 5, type: .distance)
 
-		accumulator.event(event: .pause, at: date.plus(5))
+		accumulator.event(event: .pause, at: dateGmt.plus(5))
 		
-		try accumulator.accumulate(date: date.plus(6), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(7), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(8), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(9), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(10), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(6), value: 5, type: .distance)
-		try accumulator.accumulate(date: date.plus(7), value: 5, type: .distance)
-		try accumulator.accumulate(date: date.plus(8), value: 5, type: .distance)
-		try accumulator.accumulate(date: date.plus(9), value: 5, type: .distance)
-		try accumulator.accumulate(date: date.plus(10), value: 5, type: .distance)
-		accumulator.event(event: .resume, at: date.plus(10))
+		try accumulator.accumulate(date: dateGmt.plus(6), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(7), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(8), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(9), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(10), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(6), value: 5, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(7), value: 5, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(8), value: 5, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(9), value: 5, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(10), value: 5, type: .distance)
+		accumulator.event(event: .resume, at: dateGmt.plus(10))
 
-		try accumulator.accumulate(date: date.plus(11), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(12), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(13), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(14), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(15), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(11), value: 6, type: .distance)
-		try accumulator.accumulate(date: date.plus(12), value: 7, type: .distance)
-		try accumulator.accumulate(date: date.plus(13), value: 8, type: .distance)
-		try accumulator.accumulate(date: date.plus(14), value: 9, type: .distance)
-		try accumulator.accumulate(date: date.plus(15), value: 10, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(11), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(12), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(13), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(14), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(15), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(11), value: 6, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(12), value: 7, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(13), value: 8, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(14), value: 9, type: .distance)
+		try accumulator.accumulate(date: dateGmt.plus(15), value: 10, type: .distance)
 		
-		accumulator.event(event: .stop, at: date)
+		accumulator.event(event: .stop, at: dateGmt)
 		
 		let converter = AGFitAcummulatorConverter(config: config,
 											   acummulator: accumulator,
@@ -195,7 +201,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		// File Id message
 		let fileIdMessage = try XCTUnwrap(fitWriter.messages.first(where: { ($0 as? FileIdMessage) != nil }) as? FileIdMessage)
 		var timeInterval = try XCTUnwrap(fileIdMessage.fileCreationDate?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		
 		XCTAssertEqual("Road Cycling", fileIdMessage.productName)
 		XCTAssertEqual(FileType.activity, fileIdMessage.fileType)
@@ -213,7 +219,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		// Event Message start
 		var eventMessage = try XCTUnwrap(eventMessages.first)
 		timeInterval = try XCTUnwrap(eventMessage.timeStamp?.recordDate?.timeIntervalSinceReferenceDate)
-		XCTAssertEqual(date.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
+		XCTAssertEqual(dateGmt.timeIntervalSinceReferenceDate, timeInterval, accuracy: 1)
 		XCTAssertEqual(eventMessage.eventType, EventType.start)
 		
 		// record messages
@@ -274,48 +280,48 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		var config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
-		let date = Date()
-		accumulator.event(event: .start, at: date)
+		let dateGmt = Date()
+		accumulator.event(event: .start, at: dateGmt)
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .speed)
 		
 		let radarRanges = AGDataTypeArrayValue(type: .radarRanges, values: [1,2,3,4,5,6,7,8])
-		try accumulator.accumulate(date: date.plus(1), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(2), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(3), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(4), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(5), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(1), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(2), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(3), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(4), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(5), arrayValue: radarRanges)
 		
 		let radarSpeeds = AGDataTypeArrayValue(type: .radarSpeeds, values: [5,5,5,5,5,5,5,5])
-		try accumulator.accumulate(date: date.plus(1), arrayValue: radarSpeeds)
-		try accumulator.accumulate(date: date.plus(2), arrayValue: radarSpeeds)
-		try accumulator.accumulate(date: date.plus(3), arrayValue: radarSpeeds)
-		try accumulator.accumulate(date: date.plus(4), arrayValue: radarSpeeds)
-		try accumulator.accumulate(date: date.plus(5), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(1), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(2), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(3), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(4), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(5), arrayValue: radarSpeeds)
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarPassingSpeed)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarPassingSpeed)
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarPassingSpeed)
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarPassingSpeed)
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .radarPassingSpeed)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .radarPassingSpeed)
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarPassingSpeedAbs)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarPassingSpeedAbs)
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarPassingSpeedAbs)
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarPassingSpeedAbs)
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .radarPassingSpeedAbs)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .radarPassingSpeedAbs)
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .radarTargetTotalCount)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarTargetTotalCount)
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .radarTargetTotalCount)
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .radarTargetTotalCount)
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .radarTargetTotalCount)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .radarTargetTotalCount)
 		
-		accumulator.event(event: .stop, at: date)
+		accumulator.event(event: .stop, at: dateGmt)
 		
 		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
 		let converter = AGFitAcummulatorConverter(config: config,
@@ -347,8 +353,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		var config = AGFitConverterConfig(name: "Road Cycling", sport: .cycling, subSport: .road, metric: true)
 		let accumulator = AGAccumulator()
 		
-		let date = Date()
-		accumulator.event(event: .start, at: date)
+		let dateGmt = Date()
+		accumulator.event(event: .start, at: dateGmt)
 
 		let radarRanges = AGDataTypeArrayValue(type: .radarRanges, values: [1,2,3,4,5,6,7,8])
 		let radarSpeeds = AGDataTypeArrayValue(type: .radarSpeeds, values: [5,5,5,5,5,5,5,5])
@@ -356,30 +362,30 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let radarRangesEmpty = AGDataTypeArrayValue(type: .radarRanges, values: [])
 		let radarSpeedsEmpty = AGDataTypeArrayValue(type: .radarSpeeds, values: [])
 		
-		try accumulator.accumulate(date: date.plus(1), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(1), value: 0, type: .radarStatus)
-		try accumulator.accumulate(date: date.plus(1), arrayValue: radarRangesEmpty)
-		try accumulator.accumulate(date: date.plus(1), arrayValue: radarSpeedsEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(1), value: 0, type: .radarStatus)
+		try accumulator.accumulate(date: dateGmt.plus(1), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(1), arrayValue: radarSpeedsEmpty)
 		
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(2), value: 1, type: .radarStatus)
-		try accumulator.accumulate(date: date.plus(2), arrayValue: radarRangesEmpty)
-		try accumulator.accumulate(date: date.plus(2), arrayValue: radarSpeedsEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(2), value: 1, type: .radarStatus)
+		try accumulator.accumulate(date: dateGmt.plus(2), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(2), arrayValue: radarSpeedsEmpty)
 
-		try accumulator.accumulate(date: date.plus(3), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(3), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(3), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(3), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(3), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(3), arrayValue: radarSpeeds)
 
-		try accumulator.accumulate(date: date.plus(4), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(4), arrayValue: radarRanges)
-		try accumulator.accumulate(date: date.plus(4), arrayValue: radarSpeeds)
+		try accumulator.accumulate(date: dateGmt.plus(4), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(4), arrayValue: radarRanges)
+		try accumulator.accumulate(date: dateGmt.plus(4), arrayValue: radarSpeeds)
 
-		try accumulator.accumulate(date: date.plus(5), value: 1, type: .speed)
-		try accumulator.accumulate(date: date.plus(5), value: 0, type: .radarStatus)
-		try accumulator.accumulate(date: date.plus(5), arrayValue: radarRangesEmpty)
-		try accumulator.accumulate(date: date.plus(5), arrayValue: radarSpeedsEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 1, type: .speed)
+		try accumulator.accumulate(date: dateGmt.plus(5), value: 0, type: .radarStatus)
+		try accumulator.accumulate(date: dateGmt.plus(5), arrayValue: radarRangesEmpty)
+		try accumulator.accumulate(date: dateGmt.plus(5), arrayValue: radarSpeedsEmpty)
 
-		accumulator.event(event: .stop, at: date)
+		accumulator.event(event: .stop, at: dateGmt)
 
 		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
 		let converter = AGFitAcummulatorConverter(config: config,

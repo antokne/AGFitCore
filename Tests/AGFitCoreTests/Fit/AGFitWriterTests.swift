@@ -95,7 +95,7 @@ final class AGFitWriterTests: XCTestCase {
 		
 		
 		let fileIdMesage = FileIdMessage(deviceSerialNumber: 34353535,
-										 fileCreationDate: FitTime(date: Date()),
+										 fileCreationDate: FitTime(date: .gmt),
 										 manufacturer: Manufacturer.unknown,
 										 fileType: FileType.activity,
 										 productName: "Bob")
@@ -110,7 +110,7 @@ final class AGFitWriterTests: XCTestCase {
 													   messageNumber: 20,
 													   fieldNumber: nil)
 		
-		let recordMessage = RecordMessage(timeStamp: FitTime(date: Date()))
+		let recordMessage = RecordMessage(timeStamp: FitTime(date: .gmt))
 		let value = UInt8(8)
 		XCTAssertTrue(recordMessage.addDeveloperData(value: value, fieldDescription: fieldDescription))
 		
@@ -157,7 +157,7 @@ final class AGFitWriterTests: XCTestCase {
 	func testWriteRadarDevDataFields() throws {
 		
 		let fileIdMesage = FileIdMessage(deviceSerialNumber: 34353535,
-										 fileCreationDate: FitTime(date: Date()),
+										 fileCreationDate: FitTime(date: .gmt),
 										 manufacturer: Manufacturer.unknown,
 										 fileType: FileType.activity,
 										 productName: "Bob")
@@ -193,7 +193,7 @@ final class AGFitWriterTests: XCTestCase {
 		// -37.773218, 175.287636
 		let lat = Measurement(value: -37.773218, unit: UnitAngle.degrees)
 		let lng = Measurement(value: 175.287636, unit: UnitAngle.degrees)
-		let recordMessage = RecordMessage(timeStamp: FitTime(date: Date()), position: Position(latitude: lat, longitude: lng))
+		let recordMessage = RecordMessage(timeStamp: FitTime(date: .gmt), position: Position(latitude: lat, longitude: lng))
 		
 		let rangeValues: [Int16] = [23, 34, 0, 0, 0, 0, 0, 0]
 		XCTAssertTrue(recordMessage.addDeveloperData(value: rangeValues, fieldDescription: radarRangesField))
@@ -210,7 +210,7 @@ final class AGFitWriterTests: XCTestCase {
 		let passingSpeedAbs: UInt8 = 20
 		XCTAssertTrue(recordMessage.addDeveloperData(value: passingSpeedAbs, fieldDescription: passingSpeedAbsField))
 
-		let fitTime = FitTime(date: Date())
+		let fitTime = FitTime(date: .gmt)
 		
 		let lapMessage = LapMessage(timeStamp: fitTime, startTime: fitTime)
 		let radarLapTotalValue: UInt16 = 56

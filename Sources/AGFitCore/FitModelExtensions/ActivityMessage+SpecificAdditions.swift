@@ -25,7 +25,7 @@ extension ActivityMessage: FitMessageSpecificAdditions {
 			result.append(NameValueUnitType(name: "total", value: formatter.formatDuration(duration: totalTimerTime.value)))
 		}
 		if let recordDate = localTimeStamp?.recordDate {
-			result.append(NameValueUnitType(name: "local time", value: "\(formatter.formatDate(date: recordDate)) \(formatter.formatTime(date: recordDate))"))
+			result.append(NameValueUnitType(name: "local time", value: "\(formatter.formatDate(date: recordDate, timeZone: .gmt)) \(formatter.formatTime(date: recordDate, timeZone: .gmt))"))
 		}
 		if let numberOfSessions {
 			result.append(NameValueUnitType(name: "NoSessions", value: String(numberOfSessions)))

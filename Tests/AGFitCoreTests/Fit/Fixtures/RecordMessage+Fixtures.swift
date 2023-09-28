@@ -73,7 +73,7 @@ extension RecordMessage {
 		let developerDataId = DeveloperDataIdMessage(dataIndex: 0)
 
 		let fileIdMesage = FileIdMessage(deviceSerialNumber: 34353535,
-										 fileCreationDate: FitTime(date: Date()),
+										 fileCreationDate: FitTime(date: .gmt),
 										 manufacturer: Manufacturer.unknown,
 										 fileType: FileType.activity,
 										 productName: "Bob")

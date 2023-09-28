@@ -13,6 +13,7 @@ import AntMessageProtocol
 
 public enum AGFitConverterError: Error {
 	case failedToSaveFit
+	case invalidStartDate
 }
 
 /// Converts raw data into fit messages.
@@ -44,12 +45,20 @@ public class AGFitAcummulatorConverter {
 	/// - Returns: Nil or an error
 	public func convertToFitMessages() async -> AGFitConverterError? {
 			
-		let startDate = acummulator.startDate ?? Date()
-	
-		logger.info("Started convert to Fit startDate=\(startDate, privacy: .public)")
+		let startDateGMT = acummulator.startDate ?? Date()
+
+		logger.info("Started convert to Fit startDateGMT    = \(startDateGMT, privacy: .public)")
+
+		// GMT Based start date.
+		guard let startDateLocal = Calendar.gmt.dateBySettingTimeFrom(timeZone: TimeZone.current, of: startDateGMT) else {
+			logger.error("Failed to generate fit for startDateLocal = \(startDateGMT, privacy: .public)")
+			return AGFitConverterError.invalidStartDate
+		}
+		
+		logger.info("Started convert to Fit local startDate = \(startDateLocal, privacy: .public)")
 
 		// Add a file Id message.
-		fitWriter.appendMessage(message: createFileIdMessage(name: config.name, date: startDate))
+		fitWriter.appendMessage(message: createFileIdMessage(name: config.name, date: startDateGMT))
 		
 		// Add developer fields if they exist.
 		if let devData = config.developerData {
@@ -79,10 +88,10 @@ public class AGFitAcummulatorConverter {
 		// If we have sensor data we could also add device info messages.
 		
 		// Add a Start Event.
-		fitWriter.appendMessage(message: createEventMessage(date: startDate, eventType: .start))
+		fitWriter.appendMessage(message: createEventMessage(date: startDateGMT, eventType: .start))
 		
 		// Loop through all instand data and create record messages
-		let lastRecordDate = createRecordMessages(startDate: startDate)
+		let lastRecordDate = createRecordMessages(startDate: startDateGMT)
 		
 		// Add a Stop all Event.
 		fitWriter.appendMessage(message: createEventMessage(date: lastRecordDate,
@@ -97,9 +106,8 @@ public class AGFitAcummulatorConverter {
 															  sessionData: acummulator.sessionData.currentData))
 
 		// activity message at the very end
-		fitWriter.appendMessage(message: createActivityMessage(startTime: startDate,
-															   date: lastRecordDate, allSessions:
-																acummulator.sessionData))
+		fitWriter.appendMessage(message: createActivityMessage(date: lastRecordDate,
+															   allSessions: acummulator.sessionData))
 		
 		logger.info("Completed convert to Fit.")
 		return nil
@@ -416,11 +424,13 @@ public class AGFitAcummulatorConverter {
 		return sessionMessage
 	}
 	
-	internal func createActivityMessage(startTime: Date, date: Date, allSessions: AGAccumulatorMultiData) -> ActivityMessage {
+	internal func createActivityMessage(date: Date, allSessions: AGAccumulatorMultiData) -> ActivityMessage {
 		let fitTime = FitTime(date: date)
 		
+		let startDateLocal = Calendar.gmt.dateBySettingTimeFrom(timeZone: TimeZone.current, of: date) ?? date
+		
 		// local time stamp
-		let fitLocalTime = FitTime(date: startTime, isLocal: true)
+		let fitLocalTime = FitTime(date: startDateLocal, isLocal: false)
 		
 		// event type = stop
 		let eventType = EventType.stop
