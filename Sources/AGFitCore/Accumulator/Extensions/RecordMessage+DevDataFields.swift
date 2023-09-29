@@ -63,11 +63,13 @@ extension RecordMessage {
 				}
 			case AGFitDeveloperData.RadarPassingSpeedFieldId:
 				if let doubleValue = rawData.value(for: .radarPassingSpeed) {
-					value = UInt8(doubleValue)
+					// Is either km/h or mph depending on current system
+					value = UInt8(AGFormatter.sharedFormatter.speedConverted(doubleValue))
 				}
 			case AGFitDeveloperData.RadarPassingSpeedAbsFieldId:
 				if let doubleValue = rawData.value(for: .radarPassingSpeedAbs) {
-					value = UInt8(doubleValue)
+					// Is either km/h or mph depending on current system
+					value = UInt8(AGFormatter.sharedFormatter.speedConverted(doubleValue))
 				}
 				
 			default:

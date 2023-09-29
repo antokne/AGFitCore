@@ -258,16 +258,7 @@ public class AGFitAcummulatorConverter {
 		
 		return recordMessage
 	}
-	
-	func speedConverted(_ mps: Double) -> Double {
-		config.metric ? AGFormatter.sharedFormatter.metersPerSecondToKilometersPerHour(mps: mps) :
-		AGFormatter.sharedFormatter.metersPerSecondToMilesPerHour(mps: mps)
-	}
-	
-	func distanceConverted(_ meters: Double) -> Double {
-		config.metric ? meters : AGFormatter.sharedFormatter.metersTofeet(meters: meters)
-	}
-	
+
 	internal func createEventMessage(date: Date,
 									 event: Event = .timer,
 									 eventType: EventType) -> EventMessage {
