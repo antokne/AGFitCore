@@ -16,6 +16,7 @@ public class AGFitActivityViewModel: NSObject {
 	var timestamp: Date?
 	var localTime: Date?
 	
+	/// Calculate the timezone offset from GMT using difference between local time and timestamp
 	public var secondsFromGMT: TimeInterval {
 		
 		guard let timestamp else {
@@ -29,11 +30,13 @@ public class AGFitActivityViewModel: NSObject {
 		return timeInterval
 	}
 	
+	/// Return the timezone for this message
 	public var localTimeZone: TimeZone? {
 		TimeZone(secondsFromGMT: Int(secondsFromGMT))
 	}
 	
-	
+	/// Init view model with model entity.
+	/// - Parameter activity: activity model object
 	public init(with activity: ActivityMessage) {
 		
 		timestamp = activity.timeStamp?.recordDate
