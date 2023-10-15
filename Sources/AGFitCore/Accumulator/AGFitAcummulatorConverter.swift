@@ -272,6 +272,15 @@ public class AGFitAcummulatorConverter {
 		// start time. of lap
 		let startTime = FitTime(date: lapData.startDate)
 		
+		// start Position lat/lng
+		var startPosition: Position? = nil
+		if let lat = lapData.value(for: .latitude, avgType: .first),
+		   let lng = lapData.value(for: .longitude, avgType: .first) {
+			let latMeasurement = Measurement(value: lat, unit: UnitAngle.degrees)
+			let lngMeasurement = Measurement(value: lng, unit: UnitAngle.degrees)
+			startPosition = Position(latitude: latMeasurement, longitude: lngMeasurement)
+		}
+		
 		// event type = stop
 		let eventType = EventType.stop
 		
@@ -306,6 +315,7 @@ public class AGFitAcummulatorConverter {
 									event: event,
 									eventType: eventType,
 									startTime: startTime,
+									startPosition: startPosition,
 									totalElapsedTime: totalElapsedTime,
 									totalTimerTime: totalTimerTime,
 									totalDistance: totalDistanceMeasurement,
@@ -340,6 +350,15 @@ public class AGFitAcummulatorConverter {
 		
 		// start time
 		let startTime = FitTime(date: sessionData.startDate)
+		
+		// start Position lat/lng
+		var startPosition: Position? = nil
+		if let lat = sessionData.value(for: .latitude, avgType: .first),
+		   let lng = sessionData.value(for: .longitude, avgType: .first) {
+			let latMeasurement = Measurement(value: lat, unit: UnitAngle.degrees)
+			let lngMeasurement = Measurement(value: lng, unit: UnitAngle.degrees)
+			startPosition = Position(latitude: latMeasurement, longitude: lngMeasurement)
+		}
 		
 		//event type = stop
 		let eventType = EventType.stop
@@ -384,6 +403,7 @@ public class AGFitAcummulatorConverter {
 											event: event,
 											eventType: eventType,
 											startTime: startTime,
+											startPosition: startPosition,
 											sport: sport,
 											subSport: subSport,
 											totalElapsedTime: totalElapsedTime,
