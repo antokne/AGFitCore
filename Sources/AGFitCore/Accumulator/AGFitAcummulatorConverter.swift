@@ -1,6 +1,6 @@
 //
-//  AGAcummulatorConverter.swift
-//  
+//  Accumulator.swift
+//
 //
 //  Created by Antony Gardiner on 31/05/23.
 //
@@ -18,23 +18,23 @@ public enum AGFitConverterError: Error {
 
 /// Converts raw data into fit messages.
 /// Note that this converts accumulated data into a fit file
-public class AGFitAcummulatorConverter {
+public class AGFitAccumulatorConverter {
 
-	private let acummulator: AGAccumulator
+	private let accumulator: AGAccumulator
 	private let fitWriter: AGFitWriter
 	private let config: AGFitConverterConfig
 	
-	private var logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitAcummulatorConverter")
+	private var logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitAccumulatorConverter")
 
 	private var fieldDescriptionMessages: [FieldDescriptionMessage] = []
     
     /// Converts accumulated data into fit messages
     /// - Parameters:
     ///   - config: config to use during the process
-    ///   - acummulator: the accumulated data to convert
+    ///   - accumulator: the accumulated data to convert
     ///   - fitWriter: the fit write to use to write to a file.
-	public init(config: AGFitConverterConfig, acummulator: AGAccumulator, fitWriter: AGFitWriter) {
-		self.acummulator = acummulator
+	public init(config: AGFitConverterConfig, accumulator: AGAccumulator, fitWriter: AGFitWriter) {
+		self.accumulator = accumulator
 		self.fitWriter = fitWriter
 		self.config = config
 	}
@@ -45,7 +45,7 @@ public class AGFitAcummulatorConverter {
 	/// - Returns: Nil or an error
 	public func convertToFitMessages() async -> AGFitConverterError? {
 			
-		let startDateGMT = acummulator.startDate ?? Date()
+		let startDateGMT = accumulator.startDate ?? Date()
 
 		logger.info("Started convert to Fit startDateGMT    = \(startDateGMT, privacy: .public)")
 
@@ -99,15 +99,15 @@ public class AGFitAcummulatorConverter {
 		
 		// Add lap message at the end
 		fitWriter.appendMessage(message: createLapMessage(date: lastRecordDate,
-														  lapData: acummulator.lapData.currentData))
+														  lapData: accumulator.lapData.currentData))
 
 		// Add session message at the end
 		fitWriter.appendMessage(message: createSessionMessage(date: lastRecordDate,
-															  sessionData: acummulator.sessionData.currentData))
+															  sessionData: accumulator.sessionData.currentData))
 
 		// activity message at the very end
 		fitWriter.appendMessage(message: createActivityMessage(date: lastRecordDate,
-															   allSessions: acummulator.sessionData))
+															   allSessions: accumulator.sessionData))
 		
 		logger.info("Completed convert to Fit.")
 		return nil
@@ -122,18 +122,18 @@ public class AGFitAcummulatorConverter {
 		
 		var lastRecordDate = startDate
 		
-		logger.info("Generating \(self.acummulator.rawData.data.keys.count, privacy: .public) messages.")
+		logger.info("Generating \(self.accumulator.rawData.data.keys.count, privacy: .public) messages.")
 		
-		for second in acummulator.rawData.data.keys.sorted() {
+		for second in accumulator.rawData.data.keys.sorted() {
 			
 			let recordDate = startDate.addingTimeInterval(TimeInterval(second))
 			
 			/// The data for this timestamp or second in the recorded activity
-			guard let secondData: AGAccumulatorRawInstantData = acummulator.rawData.data[second] else {
+			guard let secondData: AGAccumulatorRawInstantData = accumulator.rawData.data[second] else {
 				continue
 			}
 			
-			let arrayData = acummulator.rawData.arrayData[second]
+			let arrayData = accumulator.rawData.arrayData[second]
 			
 			// if not paused and now paused then
 			if !paused && secondData.paused {

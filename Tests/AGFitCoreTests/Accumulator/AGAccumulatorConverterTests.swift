@@ -28,8 +28,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		let accumulator = AGAccumulator()
 		
 		var fieldDescriptionMessages: [FieldDescriptionMessage] = []
-		let converter = AGFitAcummulatorConverter(config: config,
-											   acummulator: accumulator,
+		let converter = AGFitAccumulatorConverter(config: config,
+											   accumulator: accumulator,
 											   fitWriter: fitWriter)
 
 		var fields = fieldDescriptionMessages.fields(for: 10)
@@ -64,8 +64,8 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		accumulator.event(event: .start, at: dateGmt)
 		accumulator.event(event: .stop, at: dateGmt)
 		
-		let converter = AGFitAcummulatorConverter(config: config,
-											   acummulator: accumulator,
+		let converter = AGFitAccumulatorConverter(config: config,
+                                                  accumulator: accumulator,
 											   fitWriter: fitWriter)
 		
 	
@@ -188,7 +188,7 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: dateGmt)
 		
-		let converter = AGFitAcummulatorConverter(config: config,
+		let converter = AGFitAccumulatorConverter(config: config,
 											   acummulator: accumulator,
 											   fitWriter: fitWriter)
 		
@@ -323,9 +323,9 @@ final class AGAccumulatorConverterTests: XCTestCase {
 		
 		accumulator.event(event: .stop, at: dateGmt)
 		
-		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
-		let converter = AGFitAcummulatorConverter(config: config,
-											   acummulator: accumulator,
+		config.developerData = AGFitDeveloperData.generateMyBikeTrafficDeveloperData(index: 0, from: accumulator)
+		let converter = AGFitAccumulatorConverter(config: config,
+											   accumulator: accumulator,
 											   fitWriter: fitWriter)
 		
 		
@@ -387,9 +387,9 @@ final class AGAccumulatorConverterTests: XCTestCase {
 
 		accumulator.event(event: .stop, at: dateGmt)
 
-		config.developerData = AGFitDeveloperData.generateMyBikeTafficDeveloperData(index: 0, from: accumulator)
-		let converter = AGFitAcummulatorConverter(config: config,
-												  acummulator: accumulator,
+		config.developerData = AGFitDeveloperData.generateMyBikeTrafficDeveloperData(index: 0, from: accumulator)
+		let converter = AGFitAccumulatorConverter(config: config,
+												  accumulator: accumulator,
 												  fitWriter: fitWriter)
 		
 		
@@ -472,10 +472,6 @@ final class AGAccumulatorConverterTests: XCTestCase {
 
 	}
 }
-
-
-
-
 
 class MockAGFitWriter: AGFitWriter {
 	

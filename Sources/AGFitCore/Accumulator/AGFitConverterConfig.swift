@@ -89,7 +89,7 @@ extension AGFitDeveloperData {
     ///   - index: developer index
     ///   - accumulatedData: checks accumulated data and only adds developer data fields for data that exists.
     /// - Returns: the configured developer data.
-	public static func generateMyBikeTafficDeveloperData(index: UInt8 = 0, from accumulatedData: AGAccumulator) -> AGFitDeveloperData? {
+	public static func generateMyBikeTrafficDeveloperData(index: UInt8 = 0, from accumulatedData: AGAccumulator) -> AGFitDeveloperData? {
 		
 		var fields: [AGFitDeveloperDataField] = []
 		
