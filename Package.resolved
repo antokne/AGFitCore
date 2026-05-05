@@ -6,7 +6,16 @@
       "location" : "https://github.com/antokne/AGCore",
       "state" : {
         "branch" : "develop",
-        "revision" : "1afe6645151fe60a2adcad4e0d6e84a682e3b48f"
+        "revision" : "7614ae2c50d6880755d4665bd6cfc5b39ee0cc5b"
+      }
+    },
+    {
+      "identity" : "alerttoast",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elai950/AlertToast.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "76a1c1793cd3443001c20c6033beb84453b25d9f"
       }
     },
     {
@@ -28,12 +37,21 @@
       }
     },
     {
+      "identity" : "datebuilder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dreymonde/DateBuilder",
+      "state" : {
+        "revision" : "374ca554ed132f84bc97158901e6208c9608a6bc",
+        "version" : "0.1.4"
+      }
+    },
+    {
       "identity" : "fitdataprotocol",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/antokne/FitDataProtocol",
       "state" : {
         "branch" : "master",
-        "revision" : "9834eae006fd0e283620a5c2de8d2a24a11222eb"
+        "revision" : "75d6e2e407978b608d760d699f6eca7e2c4c7688"
       }
     },
     {
@@ -43,6 +61,15 @@
       "state" : {
         "revision" : "12af59a7025decf46b7e0a4bb7b1eb480b1c9e5c",
         "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "nicenotifications",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dreymonde/NiceNotifications.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "dc24879ac7979efdea18a2c1f7a8bb6c364d16e6"
       }
     }
   ],

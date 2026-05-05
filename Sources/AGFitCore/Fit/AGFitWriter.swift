@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import os
+import AGCore
 import FitDataProtocol
 
 public enum AGFitWriterError: Error {
@@ -30,7 +30,7 @@ public class AGFitWriter {
 	private(set) public var developerDataIDs: [DeveloperDataIdMessage] = []
 	private(set) public var fieldDescriptions: [FieldDescriptionMessage] = []
 	
-	let logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitWriter")
+	let logger = AGLogger(subsystem: "com.antokne.fitcore", category: "AGFitWriter")
 
 	public init(fileURL: URL) {
 		self.fileURL = fileURL
@@ -106,10 +106,10 @@ public class AGFitWriter {
 				try data.write(to: fileURL)
 			}
 			catch {
-				logger.fault("failed to save to file \(error, privacy: .public)")
+				logger.fault("failed to save to file \(error)")
 			}
 		case .failure(let error):
-			logger.fault("dam encoding failed \(error, privacy: .public)")
+			logger.fault("dam encoding failed \(error)")
 			return AGFitWriterError.FailedToWriteFile(error: error)
 		}
 		

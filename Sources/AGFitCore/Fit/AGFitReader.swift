@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import os
 import FitDataProtocol
 import AGCore
 
@@ -27,7 +26,7 @@ public class AGFitReader {
 	
 	private var messageDelegate: AGFitReaderProtocol?
 	
-	let logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitReader")
+	let logger = AGLogger(subsystem: "com.antokne.fitcore", category: "AGFitReader")
 
 	private(set) public var messages: [FitMessage] = []
 	

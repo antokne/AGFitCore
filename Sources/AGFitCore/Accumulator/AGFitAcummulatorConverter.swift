@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import os
 import AGCore
 import FitDataProtocol
 import AntMessageProtocol
@@ -24,7 +23,7 @@ public class AGFitAccumulatorConverter {
 	private let fitWriter: AGFitWriter
 	private let config: AGFitConverterConfig
 	
-	private var logger = Logger(subsystem: "com.antokne.fitcore", category: "AGFitAccumulatorConverter")
+	private var logger = AGLogger(subsystem: "com.antokne.fitcore", category: "AGFitAccumulatorConverter")
 
 	private var fieldDescriptionMessages: [FieldDescriptionMessage] = []
     
@@ -47,15 +46,15 @@ public class AGFitAccumulatorConverter {
 			
 		let startDateGMT = accumulator.startDate ?? Date()
 
-		logger.info("Started convert to Fit startDateGMT    = \(startDateGMT, privacy: .public)")
+		logger.info("Started convert to Fit startDateGMT    = \(startDateGMT)")
 
 		// GMT Based start date.
 		guard let startDateLocal = Calendar.gmt.dateBySettingTimeFrom(timeZone: TimeZone.current, of: startDateGMT) else {
-			logger.error("Failed to generate fit for startDateLocal = \(startDateGMT, privacy: .public)")
+			logger.error("Failed to generate fit for startDateLocal = \(startDateGMT)")
 			return AGFitConverterError.invalidStartDate
 		}
 		
-		logger.info("Started convert to Fit local startDate = \(startDateLocal, privacy: .public)")
+		logger.info("Started convert to Fit local startDate = \(startDateLocal)")
 
 		// Add a file Id message.
 		fitWriter.appendMessage(message: createFileIdMessage(name: config.name, date: startDateGMT))
@@ -66,7 +65,7 @@ public class AGFitAccumulatorConverter {
 			// Add developer data id messages
 			fitWriter.appendDeveloperDataId(developerDataID: createDeveloperDataIdMessage(devDataIndex: devData.developerDataIndex))
 			
-			logger.info("Adding \(devData.fields.count, privacy: .public) dev data fields.")
+			logger.info("Adding \(devData.fields.count) dev data fields.")
 
 			// Add Field description messages
 			for devField in devData.fields {
@@ -122,7 +121,7 @@ public class AGFitAccumulatorConverter {
 		
 		var lastRecordDate = startDate
 		
-		logger.info("Generating \(self.accumulator.rawData.data.keys.count, privacy: .public) messages.")
+		logger.info("Generating \(self.accumulator.rawData.data.keys.count) messages.")
 		
 		for second in accumulator.rawData.data.keys.sorted() {
 			

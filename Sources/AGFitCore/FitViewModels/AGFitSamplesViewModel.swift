@@ -6,7 +6,6 @@
 //  Copyright © 2018 Antokne. All rights reserved.
 //
 
-import os
 import Foundation
 import AGCore
 import FitDataProtocol
